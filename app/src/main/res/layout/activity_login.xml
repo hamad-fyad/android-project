@@ -97,6 +97,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/form_layout"
+        android:id="@+id/nextline"
         android:orientation="horizontal"
         android:gravity="center"
         >
@@ -112,6 +113,22 @@
             android:textStyle="bold"
             android:id="@+id/create_account_text_view_btn"
             android:text="Create an account"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nextline"
+        android:gravity="center"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:id="@+id/ResetPass"
+            android:text="Reset Password here "
             />
     </LinearLayout>
 </RelativeLayout>

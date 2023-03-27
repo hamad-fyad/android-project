@@ -24,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button loginButton;
     private ProgressBar progressBar;
-    private TextView createAccountTextView;
+    private TextView createAccountTextView,ResetPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +36,9 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.login_account_button);
         progressBar = findViewById(R.id.Progress_bar);
         createAccountTextView = findViewById(R.id.create_account_text_view_btn);
-
+        ResetPassword=findViewById(R.id.ResetPass);
         loginButton.setOnClickListener(v -> loginUser());
+        ResetPassword.setOnClickListener(v->startActivity(new Intent(LoginActivity.this,ResetPasswordActivity.class)));
         createAccountTextView.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
     }
 
@@ -62,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
                     //login is success
                     if (firebaseAuth.getCurrentUser().isEmailVerified()) {
                         //go mainactivity
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        startActivity(new Intent(LoginActivity.this, serviceActivity2.class));
                         finish();
                     } else {
                         Utility.showToast(LoginActivity.this, "Email not verified , Please verify your email");
