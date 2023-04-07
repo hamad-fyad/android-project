@@ -60,7 +60,7 @@
             android:id="@+id/email_edit_text"
             android:inputType="textEmailAddress"
             android:textSize="20sp"
-android:background="@drawable/rounded_corner"
+            android:background="@drawable/rounded_corner"
             android:padding="16dp"
             android:layout_marginTop="12dp"
             />
@@ -89,7 +89,7 @@ android:background="@drawable/rounded_corner"
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="name"
+            android:hint="full name"
             android:id="@+id/name"
             android:inputType="text"
             android:textSize="20sp"

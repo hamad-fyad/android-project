@@ -71,7 +71,7 @@ public class RegisterActivity extends AppCompatActivity {
                         //creating acc done
                         Utility.showToast(RegisterActivity.this, "Successfully created account, check email to verify");
                         sendEmailVerification();
-                        saveUserToFirestore(name, address);
+                        saveUserToFirestore(name, address, emailEditText.getText().toString());
                     } else {
                         //failure
                         Utility.showToast(RegisterActivity.this, task.getException().getLocalizedMessage());
@@ -83,11 +83,14 @@ public class RegisterActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification();
     }
 
-    void saveUserToFirestore(String name, String address) {
+    void saveUserToFirestore(String name, String address,String email) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Map<String, Object> user = new HashMap<>();
         user.put("name", name);
+        user.put("email", email.trim());
         user.put("address", address);
+        user.put("number", "change the number");
+
 
         FirebaseFirestore.getInstance().collection("users")
                 .document(uid)
