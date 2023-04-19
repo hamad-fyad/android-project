@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,11 +22,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
@@ -37,7 +34,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
-    private boolean IsEdit=true;
+
+    private Button logout;
+
     private ProgressBar progressBar;
     private BottomNavigationView bottomNavigationView;
     private TextView Name, Address, Email, Number;
@@ -62,10 +61,14 @@ public class ProfileActivity extends AppCompatActivity {
         Name1 = findViewById(R.id.text_name1);
         Address1 = findViewById(R.id.address1);
         Number1 = findViewById(R.id.number1);
+
         loadUserData();
         EditProfile = findViewById(R.id.edit_profile);
         EditProfile.setOnClickListener(v -> ChangeDetails(true));
         save = findViewById(R.id.save);
+        logout=findViewById(R.id.logout);
+        logout.setOnClickListener(v->Logout());
+
 
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -94,6 +97,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Set an OnClickListener on the profile image view
         imageView.setOnClickListener(v -> openFileChooser());
+    }
+
+    private void Logout() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
 
@@ -246,6 +257,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     });
                                 })
                                 .addOnFailureListener(uploadError -> {
+
                                     Log.w(TAG, "Failed to upload file", uploadError);
                                 });
                     } else {
@@ -270,6 +282,5 @@ public class ProfileActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> Log.w(TAG, "Error saving profile image URL", e));
         }
     }
-
 
 }

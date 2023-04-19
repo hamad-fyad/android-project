@@ -1,13 +1,40 @@
 package com.example.myapplication;
 
+import android.net.Uri;
+
 public class User {
-    String name ,address,email,number;
-    boolean LookingForWork;
-    public User (String name ,String address,String number){
+   private  String name ,address,email,number,photo;
+    private int buildingcount;
+   private boolean LookingForWork;
+
+    public User (String name ,String address,String number,String email){
+        this.buildingcount=0;
+        this.photo="";
         this.name=name;
+        this.email=email;
         this.address=address;
         this.number=number;
         this.LookingForWork=false;
+    }
+
+    public User(int count) {
+        this.buildingcount = count;
+    }
+
+    public int getCount() {
+        return buildingcount;
+    }
+
+    public void setCount(int count) {
+        this.buildingcount = count;
+    }
+
+    public boolean isLookingForWork() {
+        return LookingForWork;
+    }
+
+    public void setLookingForWork(boolean lookingForWork) {
+        LookingForWork = lookingForWork;
     }
 
     public String getNumber() {
@@ -19,15 +46,7 @@ public class User {
     }
 
     public User(){}
-    public void setLookingforwork(boolean lookingforwork) {
-        LookingForWork = lookingforwork;
-    }
 
-
-
-    public boolean isLookingforwork() {
-        return LookingForWork;
-    }
 
     public String getEmail() {
         return email;
