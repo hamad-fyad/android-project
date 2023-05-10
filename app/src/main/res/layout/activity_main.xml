@@ -21,13 +21,20 @@
         android:id="@+id/recyclerView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
-        android:padding="8dp"
+        android:padding="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteY="79dp" />
 
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:queryHint="Search buildings..."
+        app:iconifiedByDefault="false"
+        tools:ignore="MissingConstraints" />
     <ProgressBar
         android:id="@+id/Progress_bar"
         android:layout_width="24dp"
@@ -52,7 +59,7 @@
         android:backgroundTint="@color/black"
         android:drawableLeft="@drawable/baseline_add_24"
         android:text="ADD POST "
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="MissingConstraints" />

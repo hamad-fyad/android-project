@@ -3,26 +3,37 @@ package com.example.myapplication;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class Buildings {
+public class Buildings extends ArrayList {
 
     private String Address;
     private double Price;
 
-
+    private String Uid;
     private double Size;
     private String useruid;
     private ArrayList<String> picture;
 
-    public Buildings( String address, double price, double size, String user,ArrayList<String> picture) {
+    public Buildings( String address, double price, double size, String user,ArrayList<String> picture,String Uid) {
         this.picture=picture;
+        this.Uid=Uid;
         this.Address = address;
         this.Price = price;
         this.Size = size;
         this.useruid = user;
     }
 
+    public Buildings() {}
 
+
+    public String getUid() {
+        return Uid;
+    }
+
+    public void setUid(String uid) {
+        Uid = uid;
+    }
 
     public String getAddress() {
         return Address;

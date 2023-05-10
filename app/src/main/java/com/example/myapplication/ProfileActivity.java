@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,14 +18,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
@@ -38,7 +39,6 @@ public class ProfileActivity extends AppCompatActivity {
     private Button logout;
 
     private ProgressBar progressBar;
-    private BottomNavigationView bottomNavigationView;
     private TextView Name, Address, Email, Number;
     private EditText Name1, Address1, Number1;
     private MaterialButton EditProfile, save;
@@ -70,8 +70,8 @@ public class ProfileActivity extends AppCompatActivity {
         logout.setOnClickListener(v->Logout());
 
 
-
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.profile);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
@@ -115,40 +115,14 @@ public class ProfileActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
+    @SuppressLint("SetTextI18n")
     private void loadUserData() {
         if (firebaseUser != null) {
             String uid = firebaseUser.getUid();
 
             // Retrieve the user data from Firestore using the UID
             firestore.collection("users").document(uid).get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            // Get user data from the document and update the UI
-                            String name = documentSnapshot.getString("name");
-                            String email = documentSnapshot.getString("email");
-                            String address = documentSnapshot.getString("address");
-                            String number = documentSnapshot.getString("number");
-                            String photoURL = documentSnapshot.getString("photoURL");
-                            Name.setText("name : " + name);
-                            Email.setText("email : " + email);
-                            Address.setText("address : " + address);
-                            Number.setText("number : " + number);
-
-                            // Load the user's profile image using Glide
-                            if (photoURL != null && !photoURL.isEmpty()) {
-                                Glide.with(this)
-                                        .load(photoURL)
-                                        .placeholder(R.drawable.addpicture)
-                                        .error(R.drawable.addpicture)
-                                        .into(imageView);
-                            } else {
-                                imageView.setImageResource(R.drawable.addpicture);
-                            }
-
-                        } else {
-                            Log.d(TAG, "No such document");
-                        }
-                    })
+                    .addOnSuccessListener(this::onSuccess)
                     .addOnFailureListener(e -> Log.w(TAG, "Error getting user data", e));
         }
     }
@@ -177,18 +151,8 @@ public class ProfileActivity extends AppCompatActivity {
 
             if (!updatedData.isEmpty()) {
                 userDocRef.update(updatedData)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "User data successfully updated!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error updating user data", e);
-                            }
-                        });
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "User data successfully updated!"))
+                        .addOnFailureListener(e -> Log.w(TAG, "Error updating user data", e));
             }
 }
         ChangeDetails(false);
@@ -240,26 +204,19 @@ public class ProfileActivity extends AppCompatActivity {
                 StorageReference fileReference = storageReference.child(uid + ".jpg");
 
                 // Check if the image already exists
-                fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
-                    Log.d(TAG, "Image already exists, skipping upload.");
-                }).addOnFailureListener(e -> {
+                fileReference.getDownloadUrl().addOnSuccessListener(uri -> Log.d(TAG, "Image already exists, skipping upload.")).addOnFailureListener(e -> {
                     if (e instanceof StorageException && ((StorageException) e).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
                         Log.d(TAG, "Image not found, uploading a new one...");
 
                         // Upload the image
                         fileReference.putFile(imageUri)
-                                .addOnSuccessListener(taskSnapshot -> {
-                                    fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
-                                        String downloadUrl = uri.toString();
-                                        Log.d(TAG, "File uploaded successfully: " + downloadUrl);
-                                        // Save the download URL to the Firestore database
-                                        saveProfileImageUrl(downloadUrl);
-                                    });
-                                })
-                                .addOnFailureListener(uploadError -> {
-
-                                    Log.w(TAG, "Failed to upload file", uploadError);
-                                });
+                                .addOnSuccessListener(taskSnapshot -> fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                                    String downloadUrl = uri.toString();
+                                    Log.d(TAG, "File uploaded successfully: " + downloadUrl);
+                                    // Save the download URL to the Firestore database
+                                    saveProfileImageUrl(downloadUrl);
+                                }))
+                                .addOnFailureListener(uploadError -> Log.w(TAG, "Failed to upload file", uploadError));
                     } else {
                         Log.w(TAG, "Error checking for image existence", e);
                     }
@@ -283,4 +240,31 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    private void onSuccess(@NonNull DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists()) {
+            // Get user data from the document and update the UI
+            String name = documentSnapshot.getString("name");
+            String email = documentSnapshot.getString("email");
+            String address = documentSnapshot.getString("address");
+            String number = documentSnapshot.getString("number");
+            String photoURL = documentSnapshot.getString("photoURL");
+            Name.setText("name : " + name);
+            Email.setText("email : " + email);
+            Address.setText("address : " + address);
+            Number.setText("number : " + number);
+            // Load the user's profile image using Glide
+            if (photoURL != null && !photoURL.isEmpty()) {
+                Glide.with(this)
+                        .load(photoURL)
+                        .placeholder(R.drawable.addpicture)
+                        .error(R.drawable.addpicture)
+                        .into(imageView);
+            } else {
+                imageView.setImageResource(R.drawable.addpicture);
+            }
+
+        } else {
+            Log.d(TAG, "No such document");
+        }
+    }
 }

@@ -25,9 +25,7 @@
         <activity
             android:name=".serviceActivity2"
             android:exported="false" />
-        <activity
-            android:name=".BrowsingActivity"
-            android:exported="false" />
+
         <activity
             android:name=".LoginActivity"
             android:exported="true" />

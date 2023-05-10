@@ -29,6 +29,7 @@ public class serviceActivity2 extends AppCompatActivity {
         //  profile.setOnClickListener(v->startActivity(new Intent(service.this,needwork.class)));
         //  profile.setOnClickListener(v->startActivity(new Intent(service.this,needservice.class)));
          bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.service);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override

@@ -4,7 +4,7 @@ import android.net.Uri;
 
 public class User {
    private  String name ,address,email,number,photo;
-    private int buildingcount;
+    private long buildingcount;
    private boolean LookingForWork;
 
     public User (String name ,String address,String number,String email){
@@ -17,11 +17,21 @@ public class User {
         this.LookingForWork=false;
     }
 
+    public User(String name, String address, String email, String number, String photo, long buildingcount, boolean lookingForWork) {
+        this.name = name;
+        this.address = address;
+        this.email = email;
+        this.number = number;
+        this.photo = photo;
+        this.buildingcount = buildingcount;
+        this.LookingForWork = lookingForWork;
+    }
+
     public User(int count) {
         this.buildingcount = count;
     }
 
-    public int getCount() {
+    public long getCount() {
         return buildingcount;
     }
 

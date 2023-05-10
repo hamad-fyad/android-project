@@ -109,7 +109,7 @@ public class AddBuildingActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
-                    String address = Address.getText().toString();
+                    String address = Address.getText().toString().toLowerCase().trim();
                     double buildingPrice = Double.parseDouble(price.getText().toString());
                     double buildingSize = Double.parseDouble(size.getText().toString());
 
@@ -118,12 +118,17 @@ public class AddBuildingActivity extends AppCompatActivity {
 
                     // Save the images to Firebase Storage and get their URLs to store in the Building object
                     uploadImagesAndGetUrls(selectedImagesUris, imageUrls -> {
-                        Buildings building = new Buildings(address, buildingPrice, buildingSize, userId, imageUrls);
+                        // Generate a new document reference with an auto-generated ID
+                        DocumentReference newBuildingRef = firestore.collection("Buildings").document();
 
-                        // Save the Building object to the Firestore database
-                        firestore.collection("Buildings")
-                                .add(building)
-                                .addOnSuccessListener(documentReference -> {
+                        // Get the UID of the new document
+                        String buildingUid = newBuildingRef.getId();
+                        //we needed to add the uid so we only
+                        Buildings building = new Buildings( address, buildingPrice, buildingSize, userId, imageUrls,buildingUid);
+
+                        // Save the Building object to the Firestore database using the generated document reference
+                        newBuildingRef.set(building)
+                                .addOnSuccessListener(aVoid -> {
                                     Utility.showToast(this, "Building added successfully");
                                     startActivity(new Intent(AddBuildingActivity.this, MainActivity.class));
                                 })
@@ -137,6 +142,7 @@ public class AddBuildingActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void incrementUserBuildingCount(DocumentSnapshot userDocument) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
