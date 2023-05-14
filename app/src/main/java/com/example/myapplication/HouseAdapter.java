@@ -10,7 +10,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,8 +44,8 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                 String email = documentSnapshot.getString("email");
                 String number = documentSnapshot.getString("number");
                 String buildingDetails = "Address: " + building.getAddress() + "\n" +
-                        "Price: " + building.getPrice() + "\n" +
-                        "Size: " + building.getSize()+"\n"+email+
+                        "Price: " + building.getPrice() + " $\n" +
+                        "Size: " + building.getSize()+ " m\n"+email+
                         "\n"+number;
                 holder.textViewDetails.setText(buildingDetails);
             }else{
@@ -53,15 +55,16 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
         // Set building details
 
 
-        // Set up the nested RecyclerView with a horizontal LinearLayoutManager
-        //todo here
         LinearLayoutManager layoutManager = new LinearLayoutManager(holder.imageRecyclerView.getContext(), LinearLayoutManager.HORIZONTAL, false);
+        SnapHelper snapHelper = new PagerSnapHelper();
         holder.imageRecyclerView.setLayoutManager(layoutManager);
+        snapHelper.attachToRecyclerView(holder.imageRecyclerView);
 
         // Set up the ImageAdapter for the nested RecyclerView
         ArrayList<String> buildingImages = building.getPicture();
         ImageAdapter imageAdapter = new ImageAdapter(buildingImages);
         holder.imageRecyclerView.setAdapter(imageAdapter);
+
     }
 
     @Override

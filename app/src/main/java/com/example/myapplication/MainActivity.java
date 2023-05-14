@@ -31,8 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
-public class MainActivity extends AppCompatActivity implements Comparable {
+//todo make this page update once every couple of minutes
+public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
     private Button Add_Post;
     private BottomNavigationView bottomNavigationView;
@@ -84,10 +84,11 @@ public class MainActivity extends AppCompatActivity implements Comparable {
         });
 
         // Get buildings initially without any search query
-       // getBuildings(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
+        // getBuildings(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
         getCloseBuildings();
     }
     //todo fix the duplicate that are add change it
+    //todo make the posts clickable
     private void getCloseBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference housesRef = db.collection("Buildings");
@@ -100,12 +101,12 @@ public class MainActivity extends AppCompatActivity implements Comparable {
                 Query query = housesRef.whereEqualTo("address", address.toLowerCase().trim());
                 query.get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<Buildings> CloseBuildings = new CustomArrayList<>();
+                        List<Buildings> CloseBuildings = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Buildings house = document.toObject(Buildings.class);
                             CloseBuildings.add(house);
                         }
-                        Query query2 = housesRef.whereLessThanOrEqualTo("price", Integer.MAX_VALUE);
+                        Query query2 = housesRef.whereNotEqualTo("address", address.toLowerCase().trim());
                         query2.get().addOnCompleteListener(task1 -> {
                             if (task1.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task1.getResult()) {
@@ -139,20 +140,23 @@ public class MainActivity extends AppCompatActivity implements Comparable {
         int maxSize = Integer.MAX_VALUE;
         int maxPrice = Integer.MAX_VALUE;
         String address = "";
-
+        //todo make another loop that ignores the white marks
         String[] searchTerms = searchText.split(" ");
         for (int i = 0; i < searchTerms.length - 1; i++) {
+
             String term = searchTerms[i].toLowerCase();
             String value = searchTerms[i + 1];
 
             if (term.equals("size")) {
                 try {
+                    value=removeChars(value);
                     maxSize = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
             } else if (term.equals("price")) {
                 try {
+                    value=removeChars(value);
                     maxPrice = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
@@ -163,6 +167,11 @@ public class MainActivity extends AppCompatActivity implements Comparable {
         }
         getBuildings(maxPrice, maxSize, address);
     }
+
+    private String removeChars(String str) {
+        return str.replaceAll("[^\\d]", "");
+    }
+
     private void getBuildings() {
         getBuildings( Integer.MAX_VALUE, Integer.MAX_VALUE, "");
     }
@@ -197,14 +206,7 @@ public class MainActivity extends AppCompatActivity implements Comparable {
             }
         });
 
-}
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
     }
+
+
 }
-
-
-
-

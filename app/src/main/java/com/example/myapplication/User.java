@@ -3,11 +3,52 @@ package com.example.myapplication;
 import android.net.Uri;
 
 public class User {
-   private  String name ,address,email,number,photo;
+    private  String name ,address,email,number,photo;
     private long buildingcount;
-   private boolean LookingForWork;
+    private boolean LookingForWork,lookingforservice;
+    private double longitude,latitude;
 
-    public User (String name ,String address,String number,String email){
+    public String getPhoto() {
+        return photo;
+    }
+
+    public boolean isLookingforservice() {
+        return lookingforservice;
+    }
+
+    public void setLookingforservice(boolean lookingforservice) {
+        this.lookingforservice = lookingforservice;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public long getBuildingcount() {
+        return buildingcount;
+    }
+
+    public void setBuildingcount(long buildingcount) {
+        this.buildingcount = buildingcount;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public User (String name , String address, String number, String email){
         this.buildingcount=0;
         this.photo="";
         this.name=name;
@@ -15,8 +56,10 @@ public class User {
         this.address=address;
         this.number=number;
         this.LookingForWork=false;
+        this.lookingforservice=false;
+        this.latitude=0;
+        this.longitude=0;
     }
-
     public User(String name, String address, String email, String number, String photo, long buildingcount, boolean lookingForWork) {
         this.name = name;
         this.address = address;
@@ -26,7 +69,6 @@ public class User {
         this.buildingcount = buildingcount;
         this.LookingForWork = lookingForWork;
     }
-
     public User(int count) {
         this.buildingcount = count;
     }

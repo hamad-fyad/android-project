@@ -30,7 +30,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String imageUrl = imageUrls.get(position);
-
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
                 .into(holder.imageView);

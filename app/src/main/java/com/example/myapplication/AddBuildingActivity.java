@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -34,7 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddBuildingActivity extends AppCompatActivity {
     private static final int STORAGE_PERMISSION_REQUEST_CODE = 101;
-
     private LinearLayout imageContainer;
     private EditText Address, price, size;
     private Button add_post;
@@ -42,7 +42,6 @@ public class AddBuildingActivity extends AppCompatActivity {
     private TextView GoBack;
     private ActivityResultLauncher<String> multipleImagePickerLauncher;
     private List<Uri> selectedImagesUris;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,27 +76,33 @@ public class AddBuildingActivity extends AppCompatActivity {
             imageContainer.addView(shapeableImageView);
         }
     }
+private ShapeableImageView createShapeableImageView(Uri imageUri) {
+    ShapeableImageView shapeableImageView = new ShapeableImageView(this);
+    int imageSize = getResources().getDimensionPixelSize(R.dimen.image_size);
+    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageSize, imageSize);
+    layoutParams.setMargins(0, 0, getResources().getDimensionPixelSize(R.dimen.image_margin_right), 0);
+    shapeableImageView.setLayoutParams(layoutParams);
+    shapeableImageView.setAdjustViewBounds(true);
+    shapeableImageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+    shapeableImageView.setImageURI(imageUri);
 
-    private ShapeableImageView createShapeableImageView(Uri imageUri) {
-        ShapeableImageView shapeableImageView = new ShapeableImageView(this);
-        int imageSize = getResources().getDimensionPixelSize(R.dimen.image_size);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageSize, imageSize);
-        layoutParams.setMargins(0, 0, getResources().getDimensionPixelSize(R.dimen.image_margin_right), 0);
-        shapeableImageView.setLayoutParams(layoutParams);
-        shapeableImageView.setAdjustViewBounds(true);
-        shapeableImageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        shapeableImageView.setImageURI(imageUri);
+    // Create the animation
+    ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(shapeableImageView, "alpha", 0f, 1f);
+    alphaAnimator.setDuration(1000);
 
-        float cornerRadius = getResources().getDimension(R.dimen.image_corner_radius);
-        shapeableImageView.setShapeAppearanceModel(
-                shapeableImageView.getShapeAppearanceModel()
-                        .toBuilder()
-                        .setAllCorners(CornerFamily.ROUNDED, cornerRadius)
-                        .build()
-        );
+    // Start the animation
+    alphaAnimator.start();
 
-        return shapeableImageView;
-    }
+    float cornerRadius = getResources().getDimension(R.dimen.image_corner_radius);
+    shapeableImageView.setShapeAppearanceModel(
+            shapeableImageView.getShapeAppearanceModel()
+                    .toBuilder()
+                    .setAllCorners(CornerFamily.ROUNDED, cornerRadius)
+                    .build()
+    );
+
+    return shapeableImageView;
+}
 
     private void addBuilding() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
