@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         // getBuildings(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
         getCloseBuildings();
     }
-    //todo fix the duplicate that are add change it
+    //todo fix the duplicate that are add change it not possiable
     //todo make the posts clickable
     private void getCloseBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

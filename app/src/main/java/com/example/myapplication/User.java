@@ -3,11 +3,66 @@ package com.example.myapplication;
 import android.net.Uri;
 
 public class User {
-    private  String name ,address,email,number,photo;
+    private  String name ,address,email,number,photo,uid;
     private long buildingcount;
     private boolean LookingForWork,lookingforservice;
     private double longitude,latitude;
 
+
+
+    public User(String name, String address, String email, String number, String photoURL, long buildingcount, boolean lookingforwork, double longitude, double latitude, boolean lookingforservice, String uid) {
+        this.name=name;
+        this.address=address;
+        this.email=email;
+        this.number=number;
+        this.photo=photoURL;
+        this.buildingcount=buildingcount;
+        this.LookingForWork=lookingforwork;
+        this.longitude=longitude;
+        this.latitude=latitude;
+        this.lookingforservice=lookingforservice;
+        this.uid=uid;
+    }
+    public User (String name , String address, String number, String email){
+        this.buildingcount=0;
+        this.photo="";
+        this.name=name;
+        this.email=email;
+        this.address=address;
+        this.number=number;
+        this.LookingForWork=false;
+        this.lookingforservice=false;
+        this.latitude=0;
+        this.longitude=0;
+    }
+    public User(String name, String address, String email, String number, String photo, long buildingcount, boolean lookingForWork) {
+        this.name = name;
+        this.address = address;
+        this.email = email;
+        this.number = number;
+        this.photo = photo;
+        this.buildingcount = buildingcount;
+        this.LookingForWork = lookingForWork;
+    }
+
+    public User(String name, String address, String email, String number, String uid) {
+        this.name = name;
+        this.address = address;
+        this.email = email;
+        this.number = number;
+        this.photo = "";
+        this.buildingcount = 0;
+        this.LookingForWork = false;
+        this.uid=uid;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
     public String getPhoto() {
         return photo;
     }
@@ -19,7 +74,7 @@ public class User {
     public void setLookingforservice(boolean lookingforservice) {
         this.lookingforservice = lookingforservice;
     }
-
+    public User(){}
     public void setPhoto(String photo) {
         this.photo = photo;
     }
@@ -48,27 +103,8 @@ public class User {
         this.latitude = latitude;
     }
 
-    public User (String name , String address, String number, String email){
-        this.buildingcount=0;
-        this.photo="";
-        this.name=name;
-        this.email=email;
-        this.address=address;
-        this.number=number;
-        this.LookingForWork=false;
-        this.lookingforservice=false;
-        this.latitude=0;
-        this.longitude=0;
-    }
-    public User(String name, String address, String email, String number, String photo, long buildingcount, boolean lookingForWork) {
-        this.name = name;
-        this.address = address;
-        this.email = email;
-        this.number = number;
-        this.photo = photo;
-        this.buildingcount = buildingcount;
-        this.LookingForWork = lookingForWork;
-    }
+
+
     public User(int count) {
         this.buildingcount = count;
     }
@@ -97,7 +133,7 @@ public class User {
         this.number = number;
     }
 
-    public User(){}
+
 
 
     public String getEmail() {
@@ -123,4 +159,6 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
+
+
 }

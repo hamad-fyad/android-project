@@ -96,7 +96,8 @@
             android:layout_margin="12dp"
             android:background="@drawable/rounded_corner"
             android:text="add post"
-            android:textSize="16sp"
+            android:textSize="20sp"
+
             />
 
         <ProgressBar

@@ -4,12 +4,13 @@ import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class Buildings extends ArrayList {
+public class Buildings  {
 
     private String Address;
     private double Price;
-
+    private int number;
     private String Uid;
     private double Size;
     private String useruid;
@@ -22,10 +23,19 @@ public class Buildings extends ArrayList {
         this.Price = price;
         this.Size = size;
         this.useruid = user;
+        Random random = new Random();
+        this.number = random.nextInt();
     }
 
     public Buildings() {}
 
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
 
     public String getUid() {
         return Uid;

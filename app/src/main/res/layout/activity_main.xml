@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        app:queryHint="address , price ,size"
+        app:queryHint="address, price, size"
         app:iconifiedByDefault="false"
         tools:ignore="MissingConstraints" />
     <ProgressBar
@@ -62,7 +62,9 @@
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        android:textSize="20sp"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -63,14 +63,20 @@ public class LoginActivity extends AppCompatActivity {
                     //login is success
                     if (firebaseAuth.getCurrentUser().isEmailVerified()) {
                         //go mainactivity
-                        startActivity(new Intent(LoginActivity.this, serviceActivity2.class));
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
-                    } else {
+                    } else if(!firebaseAuth.getCurrentUser().isEmailVerified()) {
                         Utility.showToast(LoginActivity.this, "Email not verified , Please verify your email");
                     }
+
+
                 } else {
+                    Utility.showToast(LoginActivity.this, "you are account is not  with us ");
+                    Intent signup=new Intent(LoginActivity.this,RegisterActivity.class);
+                    signup.putExtra("email",emailEditText.getText().toString());
+                    signup.putExtra("password",passwordEditText.getText().toString());
+                    startActivity(signup);
                     //login failed
-                    Utility.showToast(LoginActivity.this, task.getException().getLocalizedMessage());
                 }
             }
         });

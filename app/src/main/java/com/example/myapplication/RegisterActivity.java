@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -18,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
-    private EditText emailEditText, passwordEditText, confirmPasswordEditText, nameEditText, addressEditText;
+    private EditText emailEditText, passwordEditText, confirmPasswordEditText, nameEditText, addressEditText,numberEditText;
     private  Button createAccountBtn;
     private ProgressBar progressBar;
     private TextView loginBtnTextView;
@@ -36,7 +37,15 @@ public class RegisterActivity extends AppCompatActivity {
         loginBtnTextView = findViewById(R.id.login_text_view_btn);
         nameEditText = findViewById(R.id.name);
         addressEditText = findViewById(R.id.address);
-
+        numberEditText = findViewById(R.id.number);
+        String email, password;
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("email") && intent.hasExtra("password")) {
+            email = intent.getStringExtra("email");
+            password = intent.getStringExtra("password");
+            emailEditText.setText(email);
+            passwordEditText.setText(password);
+        }
         createAccountBtn.setOnClickListener((v) -> createAccount());
         loginBtnTextView.setOnClickListener(v -> finish());
 
@@ -44,21 +53,24 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void createAccount() {
-        String email = emailEditText.getText().toString();
-        String password = passwordEditText.getText().toString();
-        String confirmPassword = confirmPasswordEditText.getText().toString();
-        String name = nameEditText.getText().toString();
-        String address = addressEditText.getText().toString();
-        boolean isvalidated = validateData(email, password, confirmPassword,name,address);
+        String  email = emailEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
+        String confirmPassword = confirmPasswordEditText.getText().toString().trim();
+        String name = nameEditText.getText().toString().trim();
+        String address = addressEditText.getText().toString().trim();
+        String number = numberEditText.getText().toString().trim();
 
-        if (!isvalidated) {
+        boolean isDataValidated = validateData(email, password, confirmPassword, name, address);
+
+        if (!isDataValidated) {
             return;
         }
 
-        createUserInFirebaseAuth(email, password, name, address);
+        createUserInFirebaseAuth(email, password, name, address, number);
     }
 
-    private void createUserInFirebaseAuth(String email, String password, String name, String address) {
+
+    private void createUserInFirebaseAuth(String email, String password, String name, String address,String number) {
         changeInProgress(true);
 
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
@@ -69,7 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
                         //creating acc done
                         Utility.showToast(RegisterActivity.this, "Successfully created account, check email to verify");
                         sendEmailVerification();
-                        saveUserToFirestore(name, address, emailEditText.getText().toString());
+                        saveUserToFirestore(name, address, email, number);
                     } else {
                         //failure
                             Utility.showToast(RegisterActivity.this, task.getException().getLocalizedMessage());
@@ -81,15 +93,16 @@ public class RegisterActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification();
     }
 
-    private void saveUserToFirestore(String name, String address,String email) {
+    private void saveUserToFirestore(String name, String address,String email,String number) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //todo change to the user class maybe will add the number in reqister (ask the user)
-       // User users= new User(name,address,email.trim(),number,"",0,false);
-        Map<String, Object> user = new HashMap<>();
-        user.put("name", name);
-        user.put("email", email.trim());
-        user.put("address", address);
-        user.put("number", "change the number");
+        //todo change to the user class maybe will add the number in reqister (ask the user) change but need to check if it works check
+        User user= new User(name,address,email.trim(),number,uid);
+//        Map<String, Object> user = new HashMap<>();
+//        user.put("name", name);
+//        user.put("email", email.trim());
+//        user.put("address", address);
+//        user.put("number", number);
+//        user.put("uid",uid);
 
 
         FirebaseFirestore.getInstance().collection("users")

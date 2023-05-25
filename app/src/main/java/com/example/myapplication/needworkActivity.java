@@ -2,7 +2,6 @@ package com.example.myapplication;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,16 +9,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class needworkActivity extends AppCompatActivity {
@@ -36,40 +36,60 @@ public class needworkActivity extends AppCompatActivity {
 
         // Initialize Firestore and Auth
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (user != null) {
-            // Fetch data from Firestore
-            db.collection("users")
+        if (currentUser != null) {
+            // Fetch the current user's document from Firestore
+            db.collection("users").document(currentUser.getUid())
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            ArrayList<User> userList = new ArrayList<>();
-
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                User users = document.toObject(User.class);
-                                userList.add(users);
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                // Get the interestedUsers array from the current user's document
+                                List<String> interestedUsers = (List<String>) document.get("interestedUsers");
+                                if (interestedUsers != null) {
+                                    ArrayList<User> userList = new ArrayList<>();
+                                    // Fetch each interested user's document from Firestore
+                                    for (String userId : interestedUsers) {
+                                        db.collection("users").document(userId)
+                                                .get()
+                                                .addOnCompleteListener(userTask -> {
+                                                    if (userTask.isSuccessful()) {
+                                                        DocumentSnapshot userDocument = userTask.getResult();
+                                                        if (userDocument.exists()) {
+                                                            User user = userDocument.toObject(User.class);
+                                                            userList.add(user);
+                                                            // Update the RecyclerView when a new user is added
+                                                            WorkerAdapter adapter = new WorkerAdapter(userList);
+                                                            recyclerView.setAdapter(adapter);
+                                                        }
+                                                    } else {
+                                                        Log.w(TAG, "Error getting user document.", userTask.getException());
+                                                    }
+                                                });
+                                    }
+                                }else {
+                                    //todo make a meesage no intersted users in the mean time
+                                }
                             }
-
-                            // Set up the adapter with the fetched data
-                            WorkerAdapter adapter = new WorkerAdapter(userList);
-                            recyclerView.setAdapter(adapter);
                         } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
+                            Log.w(TAG, "Error getting user document.", task.getException());
                         }
                     });
         }
     }
 
-    @Override
+        @Override
     protected void onStop() {
         super.onStop();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         // Reset the values in Firestore when the app goes into the background
         Map<String, Object> updates = new HashMap<>();
         updates.put("LookingForWork", false); // or whatever the default value is
-        updates.put("latitude", 0);
-        updates.put("longitude", 0);
+        updates.put("latitude", -1);
+        updates.put("longitude", -1);
+        updates.put("interestedUsers",null);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("users").document(user.getUid());

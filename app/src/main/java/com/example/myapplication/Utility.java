@@ -48,7 +48,11 @@ public class Utility {
                 String photoURL = documentSnapshot.getString("photoURL");
                 long buildingcount = documentSnapshot.getLong("buildingcount");
                 boolean lookingforwork = documentSnapshot.getBoolean("LookingForWork");
-                User user = new User(name, address, email, number, photoURL, buildingcount, lookingforwork);
+                boolean lookingforservice=documentSnapshot.getBoolean("lookingforservice");
+                double latitude=documentSnapshot.getDouble("latitude");
+                double longitude=documentSnapshot.getDouble("longitude");
+
+                User user = new User(name, address, email, number, photoURL, buildingcount, lookingforwork,longitude,latitude,lookingforservice,uid);
                 callback.onUserReceived(user);
             } else {
                 Log.d(TAG, "No such document");

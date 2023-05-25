@@ -10,12 +10,12 @@
 
     <ImageView
         android:id="@+id/signup_logo"
-        android:layout_width="116dp"
-        android:layout_height="116dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginVertical="30dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="35dp"
         android:layout_marginEnd="115dp"
         android:src="@drawable/signup" />
 
@@ -97,17 +97,28 @@
             android:padding="16dp"
             android:layout_marginTop="12dp"
             />
+
         <EditText
+            android:id="@+id/address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="address"
-            android:id="@+id/address"
-            android:inputType="text"
-            android:textSize="20sp"
-            android:background="@drawable/rounded_corner"
-            android:padding="16dp"
             android:layout_marginTop="10dp"
-            />
+            android:background="@drawable/rounded_corner"
+            android:hint="address"
+            android:inputType="text"
+            android:padding="16dp"
+            android:textSize="20sp" />
+        <EditText
+            android:id="@+id/number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_corner"
+            android:hint="number"
+            android:inputType="phone"
+            android:padding="16dp"
+            android:textSize="20sp" />
+
         <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
             android:layout_height="64dp"

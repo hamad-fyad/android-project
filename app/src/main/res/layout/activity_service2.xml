@@ -56,7 +56,9 @@
             android:gravity="center"
             android:padding="30dp"
             android:text="need work"
-            android:width="250dp" />
+            android:width="250dp"
+            android:textSize="20sp"
+            />
 
         <Button
             android:id="@+id/needservice"
@@ -68,7 +70,9 @@
             android:padding="30dp"
             android:background="@drawable/rounded_corner"
             android:text="need service"
-            android:width="250dp" />
+            android:width="250dp"
+            android:textSize="20sp"
+            />
 
     </LinearLayout>
 

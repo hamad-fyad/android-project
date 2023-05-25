@@ -72,14 +72,14 @@ public class serviceActivity2 extends AppCompatActivity {
         // Check if permissions are granted
         Location location = Utility.getCurrentLocation(this);
         Map<String, Object> updates = null;
-        if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
+        if (location == null) {
+            //double latitude = location.getLatitude();
+           // double longitude = location.getLongitude();
 
             updates = new HashMap<>();
             updates.put("lookingforservice", true);
-            updates.put("latitude", latitude);
-            updates.put("longitude", longitude);
+            updates.put("latitude", /*latitude*/0);
+            updates.put("longitude", /*longitude*/0);
         } else {
             Log.w(TAG, "No location available");
         }
@@ -114,14 +114,14 @@ public class serviceActivity2 extends AppCompatActivity {
         // Check if permissions are granted
         Location location = Utility.getCurrentLocation(this);
         Map<String, Object> updates = null;
-        if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
+        if (location == null) {
+           // double latitude = location.getLatitude();
+            //double longitude = location.getLongitude();
 
             updates = new HashMap<>();
             updates.put("LookingForWork", true);
-            updates.put("latitude", latitude);
-            updates.put("longitude", longitude);
+            updates.put("latitude", /*latitude*/0);
+            updates.put("longitude", /*longitude*/0);
         } else {
             Log.w(TAG, "No location available");
         }

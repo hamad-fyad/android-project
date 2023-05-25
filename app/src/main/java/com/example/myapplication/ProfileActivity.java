@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private Button logout;
+    private Button logout,personalSpace;
 
     private ProgressBar progressBar;
     private TextView Name, Address, Email, Number;
@@ -61,12 +61,14 @@ public class ProfileActivity extends AppCompatActivity {
         Name1 = findViewById(R.id.text_name1);
         Address1 = findViewById(R.id.address1);
         Number1 = findViewById(R.id.number1);
+        personalSpace=findViewById(R.id.personalSpace);
         loadUserData();
         EditProfile = findViewById(R.id.edit_profile);
         EditProfile.setOnClickListener(v -> ChangeDetails(true));
         save = findViewById(R.id.save);
         logout=findViewById(R.id.logout);
         logout.setOnClickListener(v->Logout());
+        personalSpace.setOnClickListener(v->startActivity(new Intent(ProfileActivity.this,MyPostsActivity.class)));
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.profile);
         bottomNavigationView.setOnItemSelectedListener(item -> {

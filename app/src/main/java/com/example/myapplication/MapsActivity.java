@@ -12,12 +12,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.myapplication.databinding.ActivityMapsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -30,6 +32,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 final int R1=6371;
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
+   private ArrayList<User> workers=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,54 +59,74 @@ final int R1=6371;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // Add a marker in Sydney and move the camera
-//        FirebaseFirestore firestore=FirebaseFirestore.getInstance();
-//        CollectionReference doc=firestore.collection("users");
-//                Query query=doc.whereEqualTo("LookingForWork",true);
-//                query.get().addOnCompleteListener(task -> {
-//                    if (task.isSuccessful()){
-//                        ArrayList<User> workers=new ArrayList<>();
-//                        for (QueryDocumentSnapshot document : task.getResult()) {
-//                            workers.add(document.toObject(User.class));
-//                        }
-//                        LatLng []worker=new LatLng[workers.size()];
-//                        int i=0;
-//                        for (User user : workers) {
-//                            worker[i]=new LatLng(user.getLatitude(),user.getLongitude());
-//                        }
-//
-//
-//                    }
-//                    else {
-//                        Log.w(TAG, "Error getting documents.", task.getException());
-//                   Utility.getUser(new Utility.UserCallback() {
-//                       @Override
-//                       public void onUserReceived(User user) {
-//                           LatLng sydney = new LatLng(32, 151);
-//                       }
-//
-//                       @Override
-//                       public void onError(Exception e) {
-//
-//                       }
-//                   });
-//                    }
-//                });
 
-        LatLng sydney = new LatLng(32.98449634833544, 35.24621557788863);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        CollectionReference doc = firestore.collection("users");
+        Query query = doc.whereEqualTo("LookingForWork", true)
+                .whereNotEqualTo("uid", user.getUid());
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    workers.add(document.toObject(User.class));
+                }
+
+                Utility.getUser(new Utility.UserCallback() {
+                    @Override
+                    public void onUserReceived(User user) {
+                        LatLng current = new LatLng(user.getLatitude(), user.getLongitude());
+                        mMap.addMarker(new MarkerOptions().position(current).title("you are here "));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+
+                        double userLat = user.getLatitude();
+                        double userLon = user.getLongitude();
+
+                        for (User user1 : workers) {
+                            if (haversine(userLat, userLon, user1.getLatitude(), user1.getLongitude()) <= 5) {
+                                LatLng userLocation = new LatLng(user1.getLatitude(), user1.getLongitude());
+                                Marker marker = mMap.addMarker(new MarkerOptions().position(userLocation).title(user1.getName()));
+                                // Store the user object in the marker
+                                marker.setTag(user1);
+                            }
+                        }
+
+                        // Set up the OnMarkerClickListener
+                        mMap.setOnMarkerClickListener(marker -> {
+                            User clickedUser = (User) marker.getTag();
+                            if (clickedUser != null) {
+                                String clickedUserId = clickedUser.getUid();  // Replace getUserId() with the correct method in your User class
+                                DocumentReference clickedUserDoc = firestore.collection("users").document(clickedUserId);
+                                clickedUserDoc.update("interestedUsers", FieldValue.arrayUnion(user.getUid()))
+                                        .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
+                                        .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
+                            }
+                            return false;
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.d("didn't get the current users ", e.getMessage());
+                    }
+                });
+            } else {
+                Log.w(TAG, "Error getting documents.", task.getException());
+            }
+        });
+        //here for testing because it doesn't show in the emulator
+//        LatLng sydney = new LatLng(32.98449634833544, 35.24621557788863);
+//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        // Reset the values in Firestore when the app goes into the background
         Map<String, Object> updates = new HashMap<>();
         updates.put("lookingforservice", false);
-        updates.put("latitude", null);
-        updates.put("longitude", null);
-
+        updates.put("latitude", -1);
+        updates.put("longitude", -1);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("users").document(user.getUid());
 
@@ -111,6 +134,19 @@ final int R1=6371;
                 .update(updates)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
+    }
+    public static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        lat1 = Math.toRadians(lat1);
+        lat2 = Math.toRadians(lat2);
+        double a = Math.pow(Math.sin(dLat / 2), 2) +
+                Math.pow(Math.sin(dLon / 2), 2) *
+                        Math.cos(lat1) *
+                        Math.cos(lat2);
+        double rad = 6371;
+        double c = 2 * Math.asin(Math.sqrt(a));
+        return rad * c;
     }
 
 }
