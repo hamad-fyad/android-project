@@ -12,13 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="center"
         android:id="@+id/hellotext">
 
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="you can add your posts here  "
+            android:text=" add your posts here"
             android:textStyle="bold"
             android:textSize="36sp"
             android:textColor="@color/black"
@@ -26,7 +27,6 @@
     </LinearLayout>
 
     <LinearLayout
-
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/form_layout"
@@ -50,7 +50,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/addPicturesButton"
             android:layout_width="350dp"
-            android:layout_height="200dp"
+            android:layout_height="190dp"
             android:layout_gravity="center"
             android:src="@drawable/baseline_add_home_24"
              />
@@ -63,7 +63,7 @@
             android:textSize="20sp"
             android:background="@drawable/rounded_corner"
             android:padding="16dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="1dp"
             />
         <EditText
             android:layout_width="match_parent"
@@ -74,7 +74,7 @@
             android:textSize="20sp"
             android:background="@drawable/rounded_corner"
             android:padding="16dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="5dp"
             />
         <EditText
             android:layout_width="match_parent"
@@ -85,9 +85,50 @@
             android:textSize="20sp"
             android:background="@drawable/rounded_corner"
             android:padding="16dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="5dp"
             />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="type of building"
+            android:id="@+id/typeofbuildings"
+            android:inputType="text"
+            android:textSize="20sp"
+            android:background="@drawable/rounded_corner"
+            android:padding="16dp"
+            android:layout_marginTop="5dp"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
+            <RadioGroup
+                android:id="@+id/radioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_rental"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rental"
+                    android:textSize="22sp"
+                    android:layout_marginRight="12dp"/>
+
+                <RadioButton
+                    android:id="@+id/radio_selling"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Selling"
+                    android:textSize="22sp"
+                    android:layout_marginLeft="12dp"/>
+            </RadioGroup>
+
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/add_post"

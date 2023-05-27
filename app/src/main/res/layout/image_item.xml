@@ -8,9 +8,11 @@
         android:id="@+id/imageView"
         android:layout_width="300dp"
         android:layout_height="250dp"
-        android:scaleType="centerCrop"
-        android:layout_gravity="center"
+        android:scaleType="center"
+        android:layout_gravity="center_horizontal"
         app:layout_constraintTop_toTopOf="parent"
-        android:foregroundGravity="center"/>
+        android:foregroundGravity="center"
+
+      />
 
 </LinearLayout>

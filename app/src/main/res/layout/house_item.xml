@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="300dp"
-        android:layout_height="200dp"
+        android:layout_height="40dp"
         android:scaleType="centerCrop"
         android:layout_gravity="center"/>
 
@@ -19,14 +19,13 @@
         android:layout_marginTop="8dp"
         android:text="House Details"
         android:textSize="24sp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/imageRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_height="292dp"
+        android:layout_marginBottom="40dp"
         android:paddingBottom="10dp"
-        android:textSize="20sp"
-
-        />
+        android:textSize="20sp" />
 
 </LinearLayout>

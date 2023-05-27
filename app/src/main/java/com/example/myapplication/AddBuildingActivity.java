@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
@@ -10,6 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,26 +39,35 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AddBuildingActivity extends AppCompatActivity {
     private static final int STORAGE_PERMISSION_REQUEST_CODE = 101;
     private LinearLayout imageContainer;
-    private EditText Address, price, size;
-    private Button add_post;
-    private ShapeableImageView addPicturesButton;
-    private TextView GoBack;
+    private EditText Address, price, size,typeofbuilding,type;
     private ActivityResultLauncher<String> multipleImagePickerLauncher;
     private List<Uri> selectedImagesUris;
+    private RadioGroup radioGroup;
+    private RadioButton radioButton;
+    public AddBuildingActivity() {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_building);
         imageContainer = findViewById(R.id.imageContainer);
-        GoBack = findViewById(R.id.go_back_browsing);
-        add_post = findViewById(R.id.add_post);
-        addPicturesButton = findViewById(R.id.addPicturesButton);
+        TextView goBack = findViewById(R.id.go_back_browsing);
+        Button add_post = findViewById(R.id.add_post);
+        ShapeableImageView addPicturesButton = findViewById(R.id.addPicturesButton);
         Address = findViewById(R.id.address);
         price = findViewById(R.id.price);
         size = findViewById(R.id.size);
+        typeofbuilding=findViewById(R.id.typeofbuildings);
+         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        int selectedId = radioGroup.getCheckedRadioButtonId();
+
+// find the radiobutton by returned id
+       radioButton = (RadioButton) findViewById(selectedId);
+
         requestStoragePermission();
         selectedImagesUris = new ArrayList<>();
-        GoBack.setOnClickListener(v -> startActivity(new Intent(AddBuildingActivity.this, MainActivity.class)));
+        goBack.setOnClickListener(v -> startActivity(new Intent(AddBuildingActivity.this, MainActivity.class)));
 
         add_post.setOnClickListener(v -> addBuilding());
 
@@ -108,7 +120,10 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         String userId = firebaseAuth.getCurrentUser().getUid();
-
+        if (isEmpty(Address.getText()) || isEmpty(price.getText()) || isEmpty(size.getText()) || isEmpty(typeofbuilding.getText()) || radioGroup.getCheckedRadioButtonId() == -1 || selectedImagesUris.size() == 0) {
+            Utility.showToast(this, "Please fill in all fields");
+            return;
+        }
         // Retrieve the user from the Firestore database
         firestore.collection("users").document(userId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -117,6 +132,9 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
                     String address = Address.getText().toString().toLowerCase().trim();
                     double buildingPrice = Double.parseDouble(price.getText().toString());
                     double buildingSize = Double.parseDouble(size.getText().toString());
+                    String selectedOption = radioButton.getText().toString().trim();
+                    String Typeofbuilding=typeofbuilding.getText().toString().trim();
+
 
                     // Increment building count for the user
                     incrementUserBuildingCount(document);
@@ -129,7 +147,7 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
                         // Get the UID of the new document
                         String buildingUid = newBuildingRef.getId();
                         //we needed to add the uid so we only
-                        Buildings building = new Buildings( address, buildingPrice, buildingSize, userId, imageUrls,buildingUid);
+                        Buildings building = new Buildings( address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption,Typeofbuilding);
 
                         // Save the Building object to the Firestore database using the generated document reference
                         newBuildingRef.set(building)
@@ -203,4 +221,8 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
             }
         }
     }
+    private boolean isEmpty(CharSequence text) {
+        return text.toString().trim().length() == 0;
+    }
+
 }

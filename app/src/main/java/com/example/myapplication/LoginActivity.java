@@ -1,6 +1,5 @@
 package com.example.myapplication;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -13,9 +12,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
@@ -24,7 +20,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button loginButton;
     private ProgressBar progressBar;
-    private TextView createAccountTextView,ResetPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +30,10 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password_edit_text);
         loginButton = findViewById(R.id.login_account_button);
         progressBar = findViewById(R.id.Progress_bar);
-        createAccountTextView = findViewById(R.id.create_account_text_view_btn);
-        ResetPassword=findViewById(R.id.ResetPass);
+        TextView createAccountTextView = findViewById(R.id.create_account_text_view_btn);
+        TextView resetPassword = findViewById(R.id.ResetPass);
         loginButton.setOnClickListener(v -> loginUser());
-        ResetPassword.setOnClickListener(v->startActivity(new Intent(LoginActivity.this,ResetPasswordActivity.class)));
+        resetPassword.setOnClickListener(v->startActivity(new Intent(LoginActivity.this,ResetPasswordActivity.class)));
         createAccountTextView.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
     }
 
@@ -55,29 +50,26 @@ public class LoginActivity extends AppCompatActivity {
     private void loginAccountInFirebase(String email, String password) {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         changeInProgress(true);
-        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                changeInProgress(false);
-                if (task.isSuccessful()) {
-                    //login is success
-                    if (firebaseAuth.getCurrentUser().isEmailVerified()) {
-                        //go mainactivity
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        finish();
-                    } else if(!firebaseAuth.getCurrentUser().isEmailVerified()) {
-                        Utility.showToast(LoginActivity.this, "Email not verified , Please verify your email");
-                    }
-
-
-                } else {
-                    Utility.showToast(LoginActivity.this, "you are account is not  with us ");
-                    Intent signup=new Intent(LoginActivity.this,RegisterActivity.class);
-                    signup.putExtra("email",emailEditText.getText().toString());
-                    signup.putExtra("password",passwordEditText.getText().toString());
-                    startActivity(signup);
-                    //login failed
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            changeInProgress(false);
+            if (task.isSuccessful()) {
+                //login is success
+                if (firebaseAuth.getCurrentUser().isEmailVerified()) {
+                    //go mainactivity
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
+                } else if(!firebaseAuth.getCurrentUser().isEmailVerified()) {
+                    Utility.showToast(LoginActivity.this, "Email not verified , Please verify your email");
                 }
+
+
+            } else {
+                Utility.showToast(LoginActivity.this, "you are account is not  with us ");
+                Intent signup=new Intent(LoginActivity.this,RegisterActivity.class);
+                signup.putExtra("email",emailEditText.getText().toString());
+                signup.putExtra("password",passwordEditText.getText().toString());
+                startActivity(signup);
+                //login failed
             }
         });
     }

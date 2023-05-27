@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,19 +32,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-//todo make this page update once every couple of minutes
 public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
     private Button Add_Post;
     private BottomNavigationView bottomNavigationView;
+    private SwipeRefreshLayout swipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utility.showToast(this,"click on the post to open chat with the owner");
         setContentView(R.layout.activity_main);
         Add_Post=findViewById(R.id.add_post);
         Add_Post.setOnClickListener(v->startActivity(new Intent(MainActivity.this,AddBuildingActivity.class)));
         bottomNavigationView=findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.browsing);
+         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -67,6 +70,17 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh your data here...
+                getCloseBuildings();
+
+                // This will hide the refresh indicator
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
         searchView = findViewById(R.id.searchView);
         SearchView searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -75,19 +89,16 @@ public class MainActivity extends AppCompatActivity {
                 searchBuildings(query);
                 return true;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 searchBuildings(newText);
                 return false;
             }
         });
-
         // Get buildings initially without any search query
         // getBuildings(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
         getCloseBuildings();
     }
-    //todo fix the duplicate that are add change it not possiable
     //todo make the posts clickable
     private void getCloseBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -114,10 +125,7 @@ public class MainActivity extends AppCompatActivity {
                                     CloseBuildings.add(house);
                                 }
                                 if (!CloseBuildings.isEmpty()) {
-                                    RecyclerView recyclerView = findViewById(R.id.recyclerView);
-                                    HouseAdapter houseAdapter = new HouseAdapter(CloseBuildings);
-                                    recyclerView.setAdapter(houseAdapter);
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                                  showBuildings(CloseBuildings);
                                 }
                             } else {
                                 Log.w(TAG, "Error getting documents.", task1.getException());
@@ -140,25 +148,31 @@ public class MainActivity extends AppCompatActivity {
         int maxSize = Integer.MAX_VALUE;
         int maxPrice = Integer.MAX_VALUE;
         String address = "";
-        //todo make another loop that ignores the white marks
+
+        // Trim leading and trailing whitespace and replace multiple spaces with single space
+        searchText = searchText.trim().replaceAll("\\s+", " ");
+
         String[] searchTerms = searchText.split(" ");
         for (int i = 0; i < searchTerms.length - 1; i++) {
-
             String term = searchTerms[i].toLowerCase();
             String value = searchTerms[i + 1];
 
             if (term.equals("size")) {
                 try {
-                    value=removeChars(value);
+                    value = removeChars(value);
                     maxSize = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }catch (Exception e){
                     e.printStackTrace();
                 }
             } else if (term.equals("price")) {
                 try {
-                    value=removeChars(value);
+                    value = removeChars(value);
                     maxPrice = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }catch (Exception e){
                     e.printStackTrace();
                 }
             } else if (term.equals("address")) {
@@ -197,15 +211,18 @@ public class MainActivity extends AppCompatActivity {
                         houses.add(house);
                     }
                 }
-                RecyclerView recyclerView = findViewById(R.id.recyclerView);
-                HouseAdapter houseAdapter = new HouseAdapter(houses);
-                recyclerView.setAdapter(houseAdapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                showBuildings(houses);
             } else {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
         });
 
+    }
+    private void showBuildings(List<Buildings> buildings) {
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        HouseAdapter houseAdapter = new HouseAdapter(buildings);
+        recyclerView.setAdapter(houseAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
     }
 
 

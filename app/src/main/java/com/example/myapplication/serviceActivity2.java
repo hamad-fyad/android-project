@@ -3,7 +3,6 @@ package com.example.myapplication;
 import static android.content.ContentValues.TAG;
 
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -13,8 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -86,22 +84,16 @@ public class serviceActivity2 extends AppCompatActivity {
 
         if (updates != null) {
             docRef.update(updates)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully updated!");
-                            startActivity(new Intent(serviceActivity2.this, MapsActivity.class));
-                        }
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+                        startActivity(new Intent(serviceActivity2.this, MapsActivity.class));
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error updating document", e);
-                        }
-                    });
+                    .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
         } else {
             // Handle the case when location is null
             // You may want to display an error message to the user
+            Utility.showToast(this," couldn't find  location  ");
+
         }
     }
 
@@ -128,22 +120,15 @@ public class serviceActivity2 extends AppCompatActivity {
 
         if (updates != null) {
             docRef.update(updates)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully updated!");
-                            startActivity(new Intent(serviceActivity2.this, needworkActivity.class));
-                        }
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+                        startActivity(new Intent(serviceActivity2.this, needworkActivity.class));
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error updating document", e);
-                        }
-                    });
+                    .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
         } else {
             // Handle the case when location is null
             // You may want to display an error message to the user
+            Utility.showToast(this," couldn't find  location ");
         }
     }
 

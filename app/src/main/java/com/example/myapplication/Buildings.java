@@ -1,9 +1,8 @@
 package com.example.myapplication;
 
-import android.net.Uri;
 
 import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Random;
 
 public class Buildings  {
@@ -12,9 +11,40 @@ public class Buildings  {
     private double Price;
     private int number;
     private String Uid;
+
+    public Buildings(String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption, String typeofbuilding) {
+        this.picture=imageUrls;
+        this.Uid=buildingUid;
+        this.Address = address;
+        this.Price = buildingPrice;
+        this.Size = buildingSize;
+        this.useruid = userId;
+        Random random = new Random();
+        this.number = random.nextInt();
+        this.type=selectedOption;
+        this.typeofbuilding=typeofbuilding;
+    }
+
+    public String getTypeofbuilding() {
+        return typeofbuilding;
+    }
+
+    public void setTypeofbuilding(String typeofbuilding) {
+        this.typeofbuilding = typeofbuilding;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     private double Size;
-    private String useruid;
+    private String useruid,typeofbuilding,type;
     private ArrayList<String> picture;
+
 
     public Buildings( String address, double price, double size, String user,ArrayList<String> picture,String Uid) {
         this.picture=picture;

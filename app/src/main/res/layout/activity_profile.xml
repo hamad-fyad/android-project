@@ -118,6 +118,7 @@
                 android:layout_height="wrap_content"
                 android:hint="number :"
                 android:textSize="22dp"
+                android:inputType="number"
                 android:visibility="invisible" />
 
         </FrameLayout>

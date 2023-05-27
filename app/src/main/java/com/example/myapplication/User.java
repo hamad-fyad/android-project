@@ -1,6 +1,6 @@
 package com.example.myapplication;
 
-import android.net.Uri;
+
 
 public class User {
     private  String name ,address,email,number,photo,uid;

@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,8 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Buildings building = houses.get(position);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection("users").document(building.getUseruid()).get().addOnSuccessListener(documentSnapshot->{
             if (documentSnapshot.exists()) {
@@ -48,6 +51,16 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                         "Size: " + building.getSize()+ " m\n"+email+
                         "\n"+number;
                 holder.textViewDetails.setText(buildingDetails);
+                // Set up click listener for itemView
+                holder.itemView.setOnClickListener(v -> {
+                    // Open ChatRoomActivity when clicked
+                    Intent intent = new Intent(holder.itemView.getContext(), ChatRoomActivity.class);
+                    intent.putExtra("ownerId", building.getUseruid());
+                    // Here you need to put the id of the current user, you can get this from the authentication state or from a saved preference
+                    intent.putExtra("currentUserId",user.getUid()) ;
+                    holder.itemView.getContext().startActivity(intent);
+                });
+
             }else{
                 Log.d(TAG, "No such document");
             }

@@ -36,9 +36,6 @@ import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private Button logout,personalSpace;
-
-    private ProgressBar progressBar;
     private TextView Name, Address, Email, Number;
     private EditText Name1, Address1, Number1;
     private MaterialButton EditProfile, save;
@@ -52,7 +49,7 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        progressBar = findViewById(R.id.Progress_bar);
+        ProgressBar progressBar = findViewById(R.id.Progress_bar);
         imageView = findViewById(R.id.picture);
         Name = findViewById(R.id.text_name);
         Address = findViewById(R.id.address);
@@ -61,12 +58,12 @@ public class ProfileActivity extends AppCompatActivity {
         Name1 = findViewById(R.id.text_name1);
         Address1 = findViewById(R.id.address1);
         Number1 = findViewById(R.id.number1);
-        personalSpace=findViewById(R.id.personalSpace);
+        Button personalSpace = findViewById(R.id.personalSpace);
         loadUserData();
         EditProfile = findViewById(R.id.edit_profile);
         EditProfile.setOnClickListener(v -> ChangeDetails(true));
         save = findViewById(R.id.save);
-        logout=findViewById(R.id.logout);
+        Button logout = findViewById(R.id.logout);
         logout.setOnClickListener(v->Logout());
         personalSpace.setOnClickListener(v->startActivity(new Intent(ProfileActivity.this,MyPostsActivity.class)));
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -138,13 +135,13 @@ public class ProfileActivity extends AppCompatActivity {
 
             Map<String, Object> updatedData = new HashMap<>();
 
-            if (name != null && !name.isEmpty()) {
+            if (!name.isEmpty()) {
                 updatedData.put("name", name);
             }
-            if (address != null && !address.isEmpty()) {
+            if (!address.isEmpty()) {
                 updatedData.put("address", address);
             }
-            if (number != null && !number.isEmpty()) {
+            if (!number.isEmpty()) {
                 updatedData.put("number", number);
             }
 

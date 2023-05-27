@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-final int R1=6371;
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
    private ArrayList<User> workers=new ArrayList<>();

@@ -8,13 +8,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import java.util.ArrayList;
 
 public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHolder> {
     private ArrayList<User> dataset;
+    private OnItemClickListener listener;
 
-    public WorkerAdapter(ArrayList<User> myDataset) {
+    public interface OnItemClickListener {
+        void onItemClick(User user);
+    }
+
+    public WorkerAdapter(ArrayList<User> myDataset, OnItemClickListener listener) {
         dataset = myDataset;
+        this.listener = listener;
     }
 
     @NonNull
@@ -25,27 +32,30 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHold
         return new MyViewHolder(view);
     }
 
-
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        // Assuming User class has a method getName()
-        // Replace 'getName' with your actual method or field name
-        User user=dataset.get(position);
-        String text=user.getName()+"\n "+user.getEmail()+"\n "+user.getNumber()+" ";
-        holder.myTextView.setText(text);
+        User user = dataset.get(position);
+        if(user != null) {
+            String text = user.getName() + "\n " + user.getEmail() + "\n " + user.getNumber() + " ";
+            holder.getMyTextView().setText(text);
+            holder.itemView.setOnClickListener(v -> listener.onItemClick(user));
+        }
     }
 
     @Override
     public int getItemCount() {
-        return dataset.size();
+        return dataset != null ? dataset.size() : 0;
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView myTextView;
+        private TextView myTextView;
         public MyViewHolder(View itemView) {
             super(itemView);
-
             myTextView = itemView.findViewById(R.id.worker);
+        }
+
+        public TextView getMyTextView() {
+            return myTextView;
         }
     }
 }

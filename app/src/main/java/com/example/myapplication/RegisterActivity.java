@@ -15,14 +15,13 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
+
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText emailEditText, passwordEditText, confirmPasswordEditText, nameEditText, addressEditText,numberEditText;
     private  Button createAccountBtn;
     private ProgressBar progressBar;
-    private TextView loginBtnTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPasswordEditText = findViewById(R.id.confirm_Password_edit_text);
         createAccountBtn = findViewById(R.id.create_account_button);
         progressBar = findViewById(R.id.Progress_bar);
-        loginBtnTextView = findViewById(R.id.login_text_view_btn);
+        TextView loginBtnTextView = findViewById(R.id.login_text_view_btn);
         nameEditText = findViewById(R.id.name);
         addressEditText = findViewById(R.id.address);
         numberEditText = findViewById(R.id.number);
@@ -84,7 +83,7 @@ public class RegisterActivity extends AppCompatActivity {
                         saveUserToFirestore(name, address, email, number);
                     } else {
                         //failure
-                            Utility.showToast(RegisterActivity.this, task.getException().getLocalizedMessage());
+                            Utility.showToast(RegisterActivity.this, Objects.requireNonNull(task.getException()).getLocalizedMessage());
                     }
                 });
     }
@@ -95,14 +94,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void saveUserToFirestore(String name, String address,String email,String number) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //todo change to the user class maybe will add the number in reqister (ask the user) change but need to check if it works check
+        //todo change to the user class maybe will add the number in register (ask the user) change but need to check if it works check
         User user= new User(name,address,email.trim(),number,uid);
-//        Map<String, Object> user = new HashMap<>();
-//        user.put("name", name);
-//        user.put("email", email.trim());
-//        user.put("address", address);
-//        user.put("number", number);
-//        user.put("uid",uid);
+
 
 
         FirebaseFirestore.getInstance().collection("users")
