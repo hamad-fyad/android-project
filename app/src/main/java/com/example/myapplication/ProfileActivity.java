@@ -35,21 +35,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
-
+private Button chat,logout,personalSpace;
     private TextView Name, Address, Email, Number;
     private EditText Name1, Address1, Number1;
     private MaterialButton EditProfile, save;
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private ShapeableImageView imageView;
-    private static final int PICK_IMAGE_REQUEST = 1;
+    private ProgressBar progressBar;
     private StorageReference storageReference;
     private Uri imageUri;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        ProgressBar progressBar = findViewById(R.id.Progress_bar);
+         progressBar = findViewById(R.id.Progress_bar);
         imageView = findViewById(R.id.picture);
         Name = findViewById(R.id.text_name);
         Address = findViewById(R.id.address);
@@ -58,12 +58,21 @@ public class ProfileActivity extends AppCompatActivity {
         Name1 = findViewById(R.id.text_name1);
         Address1 = findViewById(R.id.address1);
         Number1 = findViewById(R.id.number1);
-        Button personalSpace = findViewById(R.id.personalSpace);
+
+      personalSpace = findViewById(R.id.personalSpace);
         loadUserData();
+        if(!PermissionUtils.hasCameraPermission(this)){
+            PermissionUtils.requestCameraPermission(this);
+        }
+        if(!PermissionUtils.hasReadStoragePermission(this)){
+            PermissionUtils.requestReadStoragePermission(this);
+        }
         EditProfile = findViewById(R.id.edit_profile);
         EditProfile.setOnClickListener(v -> ChangeDetails(true));
         save = findViewById(R.id.save);
-        Button logout = findViewById(R.id.logout);
+       logout = findViewById(R.id.logout);
+       chat=findViewById(R.id.chat);
+        chat.setOnClickListener(v->Chat());
         logout.setOnClickListener(v->Logout());
         personalSpace.setOnClickListener(v->startActivity(new Intent(ProfileActivity.this,MyPostsActivity.class)));
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -94,6 +103,14 @@ public class ProfileActivity extends AppCompatActivity {
         imageView.setOnClickListener(v -> openFileChooser());
     }
 
+
+    private void Chat() {
+        Intent intent=new Intent(ProfileActivity.this,ChatsActivity.class);
+        intent.putExtra("currentUserId",firebaseUser.getUid());
+        startActivity(intent);
+
+    }
+
     private void Logout() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
@@ -102,12 +119,12 @@ public class ProfileActivity extends AppCompatActivity {
         finish();
     }
 
-//todo add the necessary premisses
+
     private void openFileChooser() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PermissionUtils.REQUEST_READ_EXTERNAL_STORAGE);
     }
 
     @SuppressLint("SetTextI18n")
@@ -183,13 +200,12 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             // Use Glide to load the selected image into the ImageView
             Glide.with(this).load(imageUri).into(imageView);
             // Call the uploadImage method to save the image to Firebase Storage
             uploadImage();
-        }
+
     }
     private void uploadImage() {
         if (imageUri != null) {

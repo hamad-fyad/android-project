@@ -19,9 +19,9 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHold
         void onItemClick(User user);
     }
 
-    public WorkerAdapter(ArrayList<User> myDataset, OnItemClickListener listener) {
+    public WorkerAdapter(ArrayList<User> myDataset) {
         dataset = myDataset;
-        this.listener = listener;
+
     }
 
     @NonNull
@@ -38,6 +38,7 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHold
         if(user != null) {
             String text = user.getName() + "\n " + user.getEmail() + "\n " + user.getNumber() + " ";
             holder.getMyTextView().setText(text);
+            //todo open chat between these two and use the chatItem2.xml so its looks better
             holder.itemView.setOnClickListener(v -> listener.onItemClick(user));
         }
     }

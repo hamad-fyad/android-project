@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text=" add your posts here"
+            android:text="add your posts here"
             android:textStyle="bold"
             android:textSize="36sp"
             android:textColor="@color/black"
@@ -37,7 +37,6 @@
             android:id="@+id/horizontalScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/addPicturesButton"
             android:scrollbars="horizontal">
 
             <LinearLayout
@@ -50,7 +49,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/addPicturesButton"
             android:layout_width="350dp"
-            android:layout_height="190dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             android:src="@drawable/baseline_add_home_24"
              />
@@ -64,7 +63,7 @@
             android:background="@drawable/rounded_corner"
             android:padding="16dp"
             android:layout_marginTop="1dp"
-            />
+            android:autofillHints="" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -87,17 +86,18 @@
             android:padding="16dp"
             android:layout_marginTop="5dp"
             />
-        <EditText
+
+        <Spinner
+            android:id="@+id/spinner_type_of_buildings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="type of building"
-            android:id="@+id/typeofbuildings"
-            android:inputType="text"
-            android:textSize="20sp"
-            android:background="@drawable/rounded_corner"
-            android:padding="16dp"
             android:layout_marginTop="5dp"
-            />
+            android:background="@drawable/rounded_corner"
+            android:minHeight="48dp"
+            android:padding="16dp"
+            android:contentDescription="add building type"
+            android:spinnerMode="dropdown" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
             android:text="add post"
             android:textSize="20sp"
 
-            />
+            tools:ignore="VisualLintButtonSize" />
 
         <ProgressBar
             android:layout_width="24dp"
@@ -167,15 +167,6 @@
             android:text="go back to browsing"
             android:id="@+id/go_back_browsing"
             />
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/nextline"
-        android:gravity="center"
-        >
-
 
     </LinearLayout>
 </RelativeLayout>

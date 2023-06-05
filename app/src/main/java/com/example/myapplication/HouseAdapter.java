@@ -53,13 +53,16 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                 holder.textViewDetails.setText(buildingDetails);
                 // Set up click listener for itemView
                 holder.itemView.setOnClickListener(v -> {
-                    // Open ChatRoomActivity when clicked
-                    Intent intent = new Intent(holder.itemView.getContext(), ChatRoomActivity.class);
-                    intent.putExtra("ownerId", building.getUseruid());
-                    // Here you need to put the id of the current user, you can get this from the authentication state or from a saved preference
-                    intent.putExtra("currentUserId",user.getUid()) ;
-                    holder.itemView.getContext().startActivity(intent);
-                });
+                    if(user.getUid().equals(building.getUseruid())){
+                        Utility.showToast(holder.itemView.getContext(),"its your own post cant open a chat ");
+                    }else {
+                        // Open ChatRoomActivity when clicked
+                        Intent intent = new Intent(holder.itemView.getContext(), ChatRoomActivity.class);
+                        intent.putExtra("ownerId", building.getUseruid());
+                        intent.putExtra("name",documentSnapshot.getString("name"));
+                        intent.putExtra("currentUserId", FirebaseAuth.getInstance().getUid());
+                        holder.itemView.getContext().startActivity(intent);
+                    }});
 
             }else{
                 Log.d(TAG, "No such document");

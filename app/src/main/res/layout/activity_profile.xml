@@ -155,7 +155,8 @@
             android:layout_gravity="center"
             android:text="Save"
             style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:visibility="invisible" /> <ProgressBar
+            android:visibility="invisible" />
+            <ProgressBar
             android:layout_width="24dp"
             android:layout_height="65dp"
             android:id="@+id/Progress_bar"
@@ -183,6 +184,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="myPosts"
+                android:layout_marginLeft="5dp"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="159dp"
+                tools:layout_editor_absoluteY="539dp" />
+            <Button
+                android:id="@+id/chat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="chat"
                 android:layout_marginLeft="5dp"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="159dp"

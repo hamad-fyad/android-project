@@ -8,6 +8,8 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,25 +30,62 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
     private Button Add_Post;
+    private TypoFixer typoFixer;
     private BottomNavigationView bottomNavigationView;
     private SwipeRefreshLayout swipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Utility.showToast(this,"click on the post to open chat with the owner");
         setContentView(R.layout.activity_main);
         Add_Post=findViewById(R.id.add_post);
         Add_Post.setOnClickListener(v->startActivity(new Intent(MainActivity.this,AddBuildingActivity.class)));
         bottomNavigationView=findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.browsing);
          swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        List<String> dictionary = new ArrayList<>();
+        //here i used this because some words would have some problem and would be diffrent
+        dictionary.addAll(Arrays.asList(
+                "the", "be", "to", "of", "and", "a", "in", "that", "have", "I", "it",
+                "for", "not", "on", "with", "he", "as", "you", "do", "at", "this",
+                "but", "his", "by", "from", "they", "we", "say", "her", "she", "or",
+                "an", "will", "my", "one", "all", "would", "there", "their", "what",
+                "so", "up", "out", "if", "about", "who", "get", "which", "go", "me"
+        ));
+        dictionary.addAll(Arrays.asList(
+                "address","agreement","price", "apartment",
+                "area", "assessment", "asset","balcony", "bathroom", "bedroom", "bill", "block", "building",
+                "capital", "charge", "city", "client", "commission", "community", "contract", "cost", "county",
+                "deposit", "design", "discount", "downtown", "equity", "estate", "eviction", "excellent", "expensive",
+                "garage", "garden", "gated", "good", "ground", "home", "house",
+                "housing", "improvement", "income", "inspection", "interest",
+                "location", "lot", "maintenance", "management", "market",
+                "neighborhood", "offer", "office", "property", "rental",
+                "residential","room","sale","sell","seller","service","story","street","structure","suburb","town","value","village"
+        ));
+
+        TypoFixer typoFixer = new TypoFixer(dictionary);
+
+
+
+        // Utility.showToast(this,"click on the post to open chat with the owner");
+
+        //todo activity when there is timestamp in the buildings in the firestore
+//        PeriodicWorkRequest checkSoldStatusWork =
+//                new PeriodicWorkRequest.Builder(CheckSoldStatusWorker.class, 24, TimeUnit.HOURS)
+//                        // Constraints
+//                        .build();
+//
+//        WorkManager.getInstance(this).enqueue(checkSoldStatusWork);
+
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -99,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
         // getBuildings(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
         getCloseBuildings();
     }
-    //todo make the posts clickable
     private void getCloseBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference housesRef = db.collection("Buildings");
@@ -144,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // TODO: 04/06/2023 implement the typoFixer in this function or in the text search field  
     private void searchBuildings(String searchText) {
         int maxSize = Integer.MAX_VALUE;
         int maxPrice = Integer.MAX_VALUE;

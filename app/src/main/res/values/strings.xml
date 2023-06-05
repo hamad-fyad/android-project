@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">S&amp;H real-estate</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string-array name="building_types_array">
+        <item>Building Type 1</item>
+        <item>Building Type 2</item>
+        <item>Building Type 3</item>
+        <!-- Add as many items as you have building types -->
+    </string-array>
 </resources>
+

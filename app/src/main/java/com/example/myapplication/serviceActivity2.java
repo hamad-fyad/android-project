@@ -63,74 +63,55 @@ public class serviceActivity2 extends AppCompatActivity {
     }
 
     private void need_service() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DocumentReference docRef = db.collection("users").document(user.getUid());
-
         // Check if permissions are granted
-        Location location = Utility.getCurrentLocation(this);
-        Map<String, Object> updates = null;
-        if (location == null) {
-            //double latitude = location.getLatitude();
-           // double longitude = location.getLongitude();
-
-            updates = new HashMap<>();
-            updates.put("lookingforservice", true);
-            updates.put("latitude", /*latitude*/0);
-            updates.put("longitude", /*longitude*/0);
-        } else {
-            Log.w(TAG, "No location available");
+        if (!PermissionUtils.hasFineLocationPermission(this)) {
+            PermissionUtils.requestFineLocationPermission(this);
         }
-
-        if (updates != null) {
-            docRef.update(updates)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d(TAG, "DocumentSnapshot successfully updated!");
-                        startActivity(new Intent(serviceActivity2.this, MapsActivity.class));
-                    })
-                    .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
-        } else {
-            // Handle the case when location is null
-            // You may want to display an error message to the user
-            Utility.showToast(this," couldn't find  location  ");
-
+        else {
+            startActivity(new Intent(serviceActivity2.this, MapsActivity.class));
         }
     }
+
 
 
     private void need_work() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DocumentReference docRef = db.collection("users").document(user.getUid());
-//todo when making the other pages make sure to change the ==null because of the emulator
-        // Check if permissions are granted
-        Location location = Utility.getCurrentLocation(this);
-        Map<String, Object> updates = null;
-        if (location == null) {
-           // double latitude = location.getLatitude();
-            //double longitude = location.getLongitude();
 
-            updates = new HashMap<>();
-            updates.put("LookingForWork", true);
-            updates.put("latitude", /*latitude*/0);
-            updates.put("longitude", /*longitude*/0);
-        } else {
-            Log.w(TAG, "No location available");
-        }
+        if(user != null) {  // check if the user is not null
+            DocumentReference docRef = db.collection("users").document(user.getUid());
 
-        if (updates != null) {
-            docRef.update(updates)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d(TAG, "DocumentSnapshot successfully updated!");
-                        startActivity(new Intent(serviceActivity2.this, needworkActivity.class));
-                    })
-                    .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
+            // Check if permissions are granted
+            if (PermissionUtils.hasFineLocationPermission(this)) { // Assuming you have a similar PermissionUtils for location
+                Location location = Utility.getCurrentLocation(this);
+
+                if (location != null) {
+                    // If location is not null, update the user details in Firestore
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("lookingForWork", true);
+                    updates.put("latitude", location.getLatitude());
+                    updates.put("longitude", location.getLongitude());
+
+                    docRef.update(updates)
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "DocumentSnapshot successfully updated!");
+                                startActivity(new Intent(serviceActivity2.this, needworkActivity.class));
+                            })
+                            .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
+                } else {
+                    // Location is null. Handle this case
+                    Utility.showToast(this,"Couldn't find your location. Please ensure location is enabled and permissions are granted.");
+                }
+            } else {
+                // Location permission is not granted, request for it
+                PermissionUtils.requestFineLocationPermission(this);
+            }
         } else {
-            // Handle the case when location is null
-            // You may want to display an error message to the user
-            Utility.showToast(this," couldn't find  location ");
+            // User is null. Handle this case
+            Utility.showToast(this, "User not found. Please ensure you are logged in.");
         }
     }
+
 
 
 

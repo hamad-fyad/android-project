@@ -4,6 +4,8 @@ import static android.content.ContentValues.TAG;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -36,7 +38,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DocumentReference docRef = db.collection("users").document(user.getUid());
 
+        // Check if permissions are granted
+        Location location = Utility.getCurrentLocation(this);
+        Map<String, Object> updates = new HashMap<>();
+
+        if (location != null) {
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+
+            updates.put("lookingforservice", true);
+            updates.put("latitude", latitude);
+            updates.put("longitude", longitude);
+        } else {
+            Log.w(TAG, "No location available");
+            updates.put("lookingforservice", true);
+            updates.put("latitude", -1); //use default values when location is not available
+            updates.put("longitude", -1);
+        }
+
+        docRef.update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "DocumentSnapshot successfully updated!");
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -62,14 +90,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         CollectionReference doc = firestore.collection("users");
-        Query query = doc.whereEqualTo("LookingForWork", true)
+        Query query = doc.whereEqualTo("lookingForWork", true)
                 .whereNotEqualTo("uid", user.getUid());
 
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                Log.w(TAG, "onMapReady task : "+task.getResult().size());
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     workers.add(document.toObject(User.class));
                 }
+
 
                 Utility.getUser(new Utility.UserCallback() {
                     @Override
@@ -77,12 +107,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         LatLng current = new LatLng(user.getLatitude(), user.getLongitude());
                         mMap.addMarker(new MarkerOptions().position(current).title("you are here "));
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-
+                        Utility.showToast(MapsActivity.this,""+workers.size());
+                        Log.w(TAG, "onUserReceived: "+workers.size() );
                         double userLat = user.getLatitude();
                         double userLon = user.getLongitude();
 
+
                         for (User user1 : workers) {
-                            if (haversine(userLat, userLon, user1.getLatitude(), user1.getLongitude()) <= 5) {
+                            Utility.showToast(MapsActivity.this,"hello");
+                            if (haversine(userLat, userLon, user1.getLatitude(), user1.getLongitude()) <= 50) {
                                 LatLng userLocation = new LatLng(user1.getLatitude(), user1.getLongitude());
                                 Marker marker = mMap.addMarker(new MarkerOptions().position(userLocation).title(user1.getName()));
                                 // Store the user object in the marker
@@ -117,6 +150,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        LatLng sydney = new LatLng(32.98449634833544, 35.24621557788863);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("lookingforservice", false);
+        updates.put("latitude", -1);
+        updates.put("longitude", -1);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("users").document(user.getUid());
+
+        docRef
+                .update(updates)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
     }
     @Override
     protected void onDestroy() {

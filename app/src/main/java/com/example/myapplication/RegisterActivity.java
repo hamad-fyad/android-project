@@ -64,7 +64,6 @@ public class RegisterActivity extends AppCompatActivity {
         if (!isDataValidated) {
             return;
         }
-
         createUserInFirebaseAuth(email, password, name, address, number);
     }
 
@@ -94,8 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void saveUserToFirestore(String name, String address,String email,String number) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //todo change to the user class maybe will add the number in register (ask the user) change but need to check if it works check
-        User user= new User(name,address,email.trim(),number,uid);
+        User user= new User(name.toLowerCase(),address.toLowerCase(),email.trim(),number,uid);
 
 
 

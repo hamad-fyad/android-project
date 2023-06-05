@@ -69,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
                 signup.putExtra("email",emailEditText.getText().toString());
                 signup.putExtra("password",passwordEditText.getText().toString());
                 startActivity(signup);
-                //login failed
+
             }
         });
     }

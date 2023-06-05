@@ -1,14 +1,10 @@
 package com.example.myapplication;
 
-
-
 public class User {
     private  String name ,address,email,number,photo,uid;
     private long buildingcount;
-    private boolean LookingForWork,lookingforservice;
+    private boolean lookingForWork,lookingforservice;
     private double longitude,latitude;
-
-
 
     public User(String name, String address, String email, String number, String photoURL, long buildingcount, boolean lookingforwork, double longitude, double latitude, boolean lookingforservice, String uid) {
         this.name=name;
@@ -17,32 +13,11 @@ public class User {
         this.number=number;
         this.photo=photoURL;
         this.buildingcount=buildingcount;
-        this.LookingForWork=lookingforwork;
+        this.lookingForWork=lookingforwork;
         this.longitude=longitude;
         this.latitude=latitude;
         this.lookingforservice=lookingforservice;
         this.uid=uid;
-    }
-    public User (String name , String address, String number, String email){
-        this.buildingcount=0;
-        this.photo="";
-        this.name=name;
-        this.email=email;
-        this.address=address;
-        this.number=number;
-        this.LookingForWork=false;
-        this.lookingforservice=false;
-        this.latitude=0;
-        this.longitude=0;
-    }
-    public User(String name, String address, String email, String number, String photo, long buildingcount, boolean lookingForWork) {
-        this.name = name;
-        this.address = address;
-        this.email = email;
-        this.number = number;
-        this.photo = photo;
-        this.buildingcount = buildingcount;
-        this.LookingForWork = lookingForWork;
     }
 
     public User(String name, String address, String email, String number, String uid) {
@@ -52,8 +27,11 @@ public class User {
         this.number = number;
         this.photo = "";
         this.buildingcount = 0;
-        this.LookingForWork = false;
+        this.lookingForWork = false;
+        this.lookingforservice=false;
         this.uid=uid;
+        this.latitude=1;
+        this.longitude=1;
     }
 
     public String getUid() {
@@ -104,7 +82,6 @@ public class User {
     }
 
 
-
     public User(int count) {
         this.buildingcount = count;
     }
@@ -118,11 +95,11 @@ public class User {
     }
 
     public boolean isLookingForWork() {
-        return LookingForWork;
+        return lookingForWork;
     }
 
     public void setLookingForWork(boolean lookingForWork) {
-        LookingForWork = lookingForWork;
+        this.lookingForWork = lookingForWork;
     }
 
     public String getNumber() {

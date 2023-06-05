@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -39,7 +41,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AddBuildingActivity extends AppCompatActivity {
     private static final int STORAGE_PERMISSION_REQUEST_CODE = 101;
     private LinearLayout imageContainer;
-    private EditText Address, price, size,typeofbuilding,type;
+    private Spinner typeofbuilding;
+
+    private EditText Address, price, size,type;
     private ActivityResultLauncher<String> multipleImagePickerLauncher;
     private List<Uri> selectedImagesUris;
     private RadioGroup radioGroup;
@@ -58,14 +62,20 @@ public class AddBuildingActivity extends AppCompatActivity {
         Address = findViewById(R.id.address);
         price = findViewById(R.id.price);
         size = findViewById(R.id.size);
-        typeofbuilding=findViewById(R.id.typeofbuildings);
+        typeofbuilding = findViewById(R.id.spinner_type_of_buildings);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.building_types_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeofbuilding.setAdapter(adapter);
          radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
-        int selectedId = radioGroup.getCheckedRadioButtonId();
+        if (!PermissionUtils.hasReadStoragePermission(this)) {
+            PermissionUtils.requestReadStoragePermission(this);
+        }
+        if (!PermissionUtils.hasCameraPermission(this)) {
+            PermissionUtils.requestCameraPermission(this);
+        }
 
-// find the radiobutton by returned id
-       radioButton = (RadioButton) findViewById(selectedId);
 
-        requestStoragePermission();
         selectedImagesUris = new ArrayList<>();
         goBack.setOnClickListener(v -> startActivity(new Intent(AddBuildingActivity.this, MainActivity.class)));
 
@@ -120,51 +130,66 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         String userId = firebaseAuth.getCurrentUser().getUid();
-        if (isEmpty(Address.getText()) || isEmpty(price.getText()) || isEmpty(size.getText()) || isEmpty(typeofbuilding.getText()) || radioGroup.getCheckedRadioButtonId() == -1 || selectedImagesUris.size() == 0) {
-            Utility.showToast(this, "Please fill in all fields");
-            return;
-        }
-        // Retrieve the user from the Firestore database
-        firestore.collection("users").document(userId).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    String address = Address.getText().toString().toLowerCase().trim();
-                    double buildingPrice = Double.parseDouble(price.getText().toString());
-                    double buildingSize = Double.parseDouble(size.getText().toString());
-                    String selectedOption = radioButton.getText().toString().trim();
-                    String Typeofbuilding=typeofbuilding.getText().toString().trim();
 
+        // Get the selected radio button ID
+        int selectedId = radioGroup.getCheckedRadioButtonId();
 
-                    // Increment building count for the user
-                    incrementUserBuildingCount(document);
+        // find the radiobutton by returned id
+        radioButton = (RadioButton) findViewById(selectedId);
 
-                    // Save the images to Firebase Storage and get their URLs to store in the Building object
-                    uploadImagesAndGetUrls(selectedImagesUris, imageUrls -> {
-                        // Generate a new document reference with an auto-generated ID
-                        DocumentReference newBuildingRef = firestore.collection("Buildings").document();
+        // If the radio button is not null, retrieve its text
+        if (radioButton != null) {
+            String selectedOption = radioButton.getText().toString().trim();
 
-                        // Get the UID of the new document
-                        String buildingUid = newBuildingRef.getId();
-                        //we needed to add the uid so we only
-                        Buildings building = new Buildings( address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption,Typeofbuilding);
-
-                        // Save the Building object to the Firestore database using the generated document reference
-                        newBuildingRef.set(building)
-                                .addOnSuccessListener(aVoid -> {
-                                    Utility.showToast(this, "Building added successfully");
-                                    startActivity(new Intent(AddBuildingActivity.this, MainActivity.class));
-                                })
-                                .addOnFailureListener(e -> Utility.showToast(this, "Error adding building: " + e.getMessage()));
-                    });
-                } else {
-                    Utility.showToast(this, "User not found");
-                }
-            } else {
-                Utility.showToast(this, "Error getting user: " + task.getException().getMessage());
+            if (isEmpty(Address.getText()) || isEmpty(price.getText()) || isEmpty(size.getText()) || isEmpty(typeofbuilding.getSelectedItem().toString().trim()) || selectedImagesUris.size() == 0) {
+                Utility.showToast(this, "Please fill in all fields");
+                return;
             }
-        });
+
+            // Retrieve the user from the Firestore database
+            firestore.collection("users").document(userId).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        String address = Address.getText().toString().toLowerCase().trim();
+                        double buildingPrice = Double.parseDouble(price.getText().toString());
+                        double buildingSize = Double.parseDouble(size.getText().toString());
+                        String Typeofbuilding=typeofbuilding.getSelectedItem().toString().trim();
+
+                        // Increment building count for the user
+                        incrementUserBuildingCount(document);
+
+                        // Save the images to Firebase Storage and get their URLs to store in the Building object
+                        uploadImagesAndGetUrls(selectedImagesUris, imageUrls -> {
+                            // Generate a new document reference with an auto-generated ID
+                            DocumentReference newBuildingRef = firestore.collection("Buildings").document();
+
+                            // Get the UID of the new document
+                            String buildingUid = newBuildingRef.getId();
+                            //we needed to add the uid so we only
+                            Buildings building = new Buildings( this,address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption,Typeofbuilding);
+
+                            // Save the Building object to the Firestore database using the generated document reference
+                            newBuildingRef.set(building)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Utility.showToast(this, "Building added successfully");
+                                        startActivity(new Intent(AddBuildingActivity.this, MainActivity.class));
+                                    })
+                                    .addOnFailureListener(e -> Utility.showToast(this, "Error adding building: " + e.getMessage()));
+                        });
+                    } else {
+                        Utility.showToast(this, "User not found");
+                    }
+                } else {
+                    Utility.showToast(this, "Error getting user: " + task.getException().getMessage());
+                }
+            });
+
+        } else {
+            Utility.showToast(this, "Please select a radio button option");
+        }
     }
+
 
 
     private void incrementUserBuildingCount(DocumentSnapshot userDocument) {
@@ -203,19 +228,12 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
     }
 
 
-
-    private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_REQUEST_CODE);
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == STORAGE_PERMISSION_REQUEST_CODE) {
+        if (requestCode == PermissionUtils.REQUEST_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, you can now access the gallery
+
             } else {
                 Utility.showToast(this, "Permission denied. Unable to access the gallery.");
             }

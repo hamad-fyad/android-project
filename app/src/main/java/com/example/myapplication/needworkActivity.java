@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -26,9 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class needworkActivity extends AppCompatActivity {
-    //todo add the gps location and change the user looking for work to true
-    // TODO: 13/05/2023 fix the users that are  check who true need work fetch the data for the location
-
+private TextView slide;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +36,7 @@ public class needworkActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.worker_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        slide=findViewById(R.id.slide);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -68,11 +68,11 @@ public class needworkActivity extends AppCompatActivity {
                                                                 userList.add(user);
                                                                 // Update the RecyclerView when a new user is added
                                                                 runOnUiThread(() -> {
-                                                                    WorkerAdapter adapter = new WorkerAdapter(userList,user1 -> {
-                                                                        // Display a toast with the user's name when an item is clicked
-                                                                        Toast.makeText(needworkActivity.this, "Clicked on user: " + user1.getName(), Toast.LENGTH_SHORT).show();
-                                                                    });
+                                                                    WorkerAdapter adapter = new WorkerAdapter(userList);
+                                                                    // TODO: 04/06/2023  change this to listener so its update when there is a change in the database
+                                                                    slide.setVisibility(View.GONE);
                                                                     recyclerView.setAdapter(adapter);
+
                                                                 });
                                                             }
                                                         } else {
@@ -81,8 +81,7 @@ public class needworkActivity extends AppCompatActivity {
                                                     });
                                         }
                                     } else {
-                                        // Make a message no interested users in the meantime
-                                        //runOnUiThread makes sure that its run on the main thread
+                                        //runOnUiThread makes sure that its run on the main thread i need it like this so its updates on main
                                         runOnUiThread(() -> Utility.showToast(needworkActivity.this, "No interested users at the moment. Please try again later."));
                                     }
                                 }
@@ -111,7 +110,8 @@ public class needworkActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         // Reset the values in Firestore when the app goes into the background
         Map<String, Object> updates = new HashMap<>();
-        updates.put("LookingForWork", false); // or whatever the default value is
+        updates.put("lookingForWork", false);
+        updates.put("lookingforservice", false); // or whatever the default value is
         updates.put("latitude", -1);
         updates.put("longitude", -1);
         updates.put("interestedUsers",null);

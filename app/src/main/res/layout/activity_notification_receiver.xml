@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NotificationReceiverActivity">
+
+    <TextView
+        android:id="@+id/tv_building_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:text="Building Info"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/btn_sold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_building_info"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:text="Sold"
+        android:width="250dp"
+        android:textSize="20sp"
+        android:height="100dp"
+        />
+
+    <Button
+        android:id="@+id/btn_not_sold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_sold"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:text="Not Sold"
+        android:width="250dp"
+        android:height="100dp"
+        android:textSize="20sp"/>
+
+</RelativeLayout>
