@@ -7,7 +7,6 @@ import android.location.Location;
 import java.util.ArrayList;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Random;
 
 public class Buildings  {

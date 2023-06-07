@@ -32,13 +32,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Message message=messages.get(position);
         if(message.getSentBy().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-            holder.leftChatView.setVisibility(View.VISIBLE);
-            holder.rightChatView.setVisibility(View.GONE);
-            holder.leftTextView.setText(message.getMessage());
-        }else{
             holder.leftChatView.setVisibility(View.GONE);
             holder.rightChatView.setVisibility(View.VISIBLE);
             holder.rightTextView.setText(message.getMessage());
+        }else{
+            holder.leftChatView.setVisibility(View.VISIBLE);
+            holder.rightChatView.setVisibility(View.GONE);
+            holder.leftTextView.setText(message.getMessage());
         }
     }
 

@@ -1,7 +1,6 @@
 package com.example.myapplication;
 
 import android.content.Intent;
-import android.graphics.Picture;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,15 +38,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MyViewHolder> 
                 @Override
                 public void onUserReceived(User user) {
                    holder.chatTextView.setText(user.getName());
-                   String photoURL= user.getPhoto();
+                   String photoURL= user.getPhotoURL();
                     if (photoURL != null && !photoURL.isEmpty()) {
                         Glide.with(holder.itemView.getContext())
                                 .load(photoURL)
-                                .placeholder(R.drawable.addpicture)
-                                .error(R.drawable.addpicture)
+                                .placeholder(R.drawable.baseline_person_24)
+                                .error(R.drawable.baseline_person_24)
                                 .into(holder.Picture);
                     } else {
-                        holder.Picture.setImageResource(R.drawable.addpicture);
+                        holder.Picture.setImageResource(R.drawable.baseline_person_24);
                     }
                 }
 

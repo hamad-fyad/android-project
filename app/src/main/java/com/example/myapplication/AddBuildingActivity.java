@@ -1,7 +1,5 @@
 package com.example.myapplication;
 
-
-import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,14 +14,10 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,18 +26,15 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddBuildingActivity extends AppCompatActivity {
-    private static final int STORAGE_PERMISSION_REQUEST_CODE = 101;
     private LinearLayout imageContainer;
     private Spinner typeofbuilding;
-
-    private EditText Address, price, size,type;
+    private EditText Address, price, size;
     private ActivityResultLauncher<String> multipleImagePickerLauncher;
     private List<Uri> selectedImagesUris;
     private RadioGroup radioGroup;

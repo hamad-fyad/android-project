@@ -17,7 +17,7 @@ public class PostUpdateReceiver extends BroadcastReceiver {
             deleteBuilding(buildingId);
         } else if (action.equals("notSold")) {
             // TODO: 31/05/2023 make the statistics here if not sold or if sold check it
-            // You can update the timestamp here if you want
+            //  update the timestamp here
         }
     }
 

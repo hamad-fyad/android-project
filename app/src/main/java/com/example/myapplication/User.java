@@ -1,17 +1,22 @@
 package com.example.myapplication;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
-    private  String name ,address,email,number,photo,uid;
+    private  String name ,address,email,number,photoURL,uid;
     private long buildingcount;
     private boolean lookingForWork,lookingforservice;
     private double longitude,latitude;
+    private List<String> interestedUsers;
+
 
     public User(String name, String address, String email, String number, String photoURL, long buildingcount, boolean lookingforwork, double longitude, double latitude, boolean lookingforservice, String uid) {
         this.name=name;
         this.address=address;
         this.email=email;
         this.number=number;
-        this.photo=photoURL;
+        this.photoURL=photoURL;
         this.buildingcount=buildingcount;
         this.lookingForWork=lookingforwork;
         this.longitude=longitude;
@@ -25,13 +30,15 @@ public class User {
         this.address = address;
         this.email = email;
         this.number = number;
-        this.photo = "";
+        this.photoURL = "";
         this.buildingcount = 0;
         this.lookingForWork = false;
         this.lookingforservice=false;
         this.uid=uid;
         this.latitude=1;
         this.longitude=1;
+        this.interestedUsers = new ArrayList<>(); // Add this line
+
     }
 
     public String getUid() {
@@ -41,9 +48,7 @@ public class User {
     public void setUid(String uid) {
         this.uid = uid;
     }
-    public String getPhoto() {
-        return photo;
-    }
+
 
     public boolean isLookingforservice() {
         return lookingforservice;
@@ -54,7 +59,7 @@ public class User {
     }
     public User(){}
     public void setPhoto(String photo) {
-        this.photo = photo;
+        this.photoURL = photo;
     }
 
     public long getBuildingcount() {
@@ -111,7 +116,21 @@ public class User {
     }
 
 
+    public String getPhotoURL() {
+        return photoURL;
+    }
 
+    public void setPhotoURL(String photoURL) {
+        this.photoURL = photoURL;
+    }
+
+    public List<String> getInterestedUsers() {
+        return interestedUsers;
+    }
+
+    public void setInterestedUsers(List<String> interestedUsers) {
+        this.interestedUsers = interestedUsers;
+    }
 
     public String getEmail() {
         return email;
@@ -137,5 +156,21 @@ public class User {
         this.name = name;
     }
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", email='" + email + '\'' +
+                ", number='" + number + '\'' +
+                ", photoURL='" + photoURL + '\'' +
+                ", uid='" + uid + '\'' +
+                ", buildingcount=" + buildingcount +
+                ", lookingForWork=" + lookingForWork +
+                ", lookingforservice=" + lookingforservice +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", interestedUsers=" + interestedUsers +
+                '}';
+    }
 }

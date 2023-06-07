@@ -4,7 +4,6 @@ import static android.content.ContentValues.TAG;
 
 import androidx.fragment.app.FragmentActivity;
 
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;

@@ -1,27 +1,31 @@
 package com.example.myapplication;
 
+import static android.content.ContentValues.TAG;
+
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHolder> {
     private ArrayList<User> dataset;
-    private OnItemClickListener listener;
 
-    public interface OnItemClickListener {
-        void onItemClick(User user);
-    }
+
 
     public WorkerAdapter(ArrayList<User> myDataset) {
         dataset = myDataset;
-
     }
 
     @NonNull
@@ -34,13 +38,34 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHold
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        User user = dataset.get(position);
-        if(user != null) {
-            String text = user.getName() + "\n " + user.getEmail() + "\n " + user.getNumber() + " ";
-            holder.getMyTextView().setText(text);
-            //todo open chat between these two and use the chatItem2.xml so its looks better
-            holder.itemView.setOnClickListener(v -> listener.onItemClick(user));
-        }
+            if (!dataset.isEmpty()) {
+                Log.w(TAG, "onBindViewHolder2: " + dataset.get(position).toString());
+                holder.myTextView.setText(dataset.get(position).getName());
+                holder.email.setText(dataset.get(position).getEmail());
+                String photoURL= dataset.get(position).getPhotoURL();
+                if (photoURL != null && !photoURL.isEmpty()) {
+                    Glide.with(holder.itemView.getContext())
+                            .load(photoURL)
+                            .placeholder(R.drawable.baseline_person_24)
+                            .error(R.drawable.baseline_person_24)
+                            .into(holder.picture);
+                } else {
+                    holder.picture.setImageResource(R.drawable.baseline_person_24);
+                }
+                holder.itemView.setOnClickListener(v ->{
+                    // Handle the click event, e.g., open the chat
+                    Intent intent = new Intent(holder.itemView.getContext(), ChatRoomActivity.class);
+                    intent.putExtra("ownerId", dataset.get(position).getUid());
+                    intent.putExtra("currentUserId", FirebaseAuth.getInstance().getUid());
+                    holder.itemView.getContext().startActivity(intent);
+
+                });
+
+            }else {
+                holder.myTextView.setText("no users");
+            }
+
+
     }
 
     @Override
@@ -49,10 +74,14 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHold
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        private TextView myTextView;
+        private TextView myTextView,email;
+        private ImageView picture;
+
         public MyViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.worker);
+            myTextView = itemView.findViewById(R.id.chat_text_view2);
+            picture=itemView.findViewById(R.id.picture);
+            email=itemView.findViewById(R.id.email);
         }
 
         public TextView getMyTextView() {

@@ -7,15 +7,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -28,81 +27,129 @@ import java.util.List;
 import java.util.Map;
 
 public class needworkActivity extends AppCompatActivity {
-private TextView slide;
+    private TextView slide;
+    private FirebaseFirestore db;
+    private FirebaseUser currentUser;
+    private RecyclerView recyclerView;
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_needwork);
 
-        RecyclerView recyclerView = findViewById(R.id.worker_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        slide=findViewById(R.id.slide);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        if (currentUser != null) {
+            DocumentReference docRef = db.collection("users").document(currentUser.getUid());
 
-        // Runnable that fetches data
-        Runnable fetchData = () -> {
-            if (currentUser != null) {
-                // Fetch the current user's document from Firestore
-                db.collection("users").document(currentUser.getUid())
-                        .get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) {
-                                    // Get the interestedUsers array from the current user's document
-                                    List<String> interestedUsers = (List<String>) document.get("interestedUsers");
-                                    if (interestedUsers != null) {
-                                        ArrayList<User> userList = new ArrayList<>();
-                                        // Fetch each interested user's document from Firestore
-                                        for (String userId : interestedUsers) {
-                                            db.collection("users").document(userId)
-                                                    .get()
-                                                    .addOnCompleteListener(userTask -> {
-                                                        if (userTask.isSuccessful()) {
-                                                            DocumentSnapshot userDocument = userTask.getResult();
-                                                            if (userDocument.exists()) {
-                                                                User user = userDocument.toObject(User.class);
-                                                                userList.add(user);
-                                                                // Update the RecyclerView when a new user is added
-                                                                runOnUiThread(() -> {
-                                                                    WorkerAdapter adapter = new WorkerAdapter(userList);
-                                                                    // TODO: 04/06/2023  change this to listener so its update when there is a change in the database
-                                                                    slide.setVisibility(View.GONE);
-                                                                    recyclerView.setAdapter(adapter);
+            // Check if permissions are granted
+            if (PermissionUtils.hasFineLocationPermission(this)) {
+                Location location = Utility.getCurrentLocation(this);
 
-                                                                });
-                                                            }
-                                                        } else {
-                                                            Log.w(TAG, "Error getting user document.", userTask.getException());
-                                                        }
-                                                    });
-                                        }
-                                    } else {
-                                        //runOnUiThread makes sure that its run on the main thread i need it like this so its updates on main
-                                        runOnUiThread(() -> Utility.showToast(needworkActivity.this, "No interested users at the moment. Please try again later."));
-                                    }
-                                }
-                            } else {
-                                Log.w(TAG, "Error getting user document.", task.getException());
-                            }
-                            // After refreshing the data, indicate that the refreshing has finished
-                            swipeRefreshLayout.setRefreshing(false);
-                        });
+                if (location != null) {
+                    // If location is not null, update the user details in Firestore
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("lookingForWork", true);
+                    updates.put("latitude", location.getLatitude());
+                    updates.put("longitude", location.getLongitude());
+
+                    docRef.update(updates)
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
+                            .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
+                } else {
+                    // Location is null. Handle this case
+                    Utility.showToast(this, "Couldn't find your location. Please ensure location is enabled and permissions are granted.");
+                }
+            } else {
+                // Location permission is not granted, request it
+                PermissionUtils.requestFineLocationPermission(this);
             }
-        };
+        } else {
+            // User is null. Handle this case
+            Utility.showToast(this, "User not found. Please ensure you are logged in.");
+        }
+
+        recyclerView = findViewById(R.id.worker_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        slide = findViewById(R.id.slide);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.service);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.profile:
+                    // Start ProfileActivity
+                    Intent profileIntent = new Intent(needworkActivity.this, ProfileActivity.class);
+                    startActivity(profileIntent);
+                    return true;
+                case R.id.browsing:
+                    // Start BrowsingActivity
+                    Intent browsingIntent = new Intent(needworkActivity.this, MainActivity.class);
+                    startActivity(browsingIntent);
+                    return true;
+                case R.id.service:
+                    // Start ServiceActivity
+                    Utility.showToast(needworkActivity.this, "You are already on the service page");
+                    return true;
+            }
+            return false;
+        });
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             swipeRefreshLayout.setRefreshing(true);
-            fetchData.run();
+            listenForInterestedUsers();
         });
 
         // Trigger initial refresh manually
-        fetchData.run();
+        listenForInterestedUsers();
     }
 
+    private void listenForInterestedUsers() {
+        if (currentUser != null) {
+            db.collection("users").document(currentUser.getUid())
+                    .addSnapshotListener((snapshot, e) -> {
+                        if (e != null) {
+                            Log.e(TAG, "Error listening for interested users", e);
+                            return;
+                        }
+
+                        if (snapshot != null && snapshot.exists()) {
+                            List<String> interestedUsers = snapshot.toObject(User.class).getInterestedUsers();
+                            if (interestedUsers != null) {
+                                ArrayList<User> userList = new ArrayList<>();
+                                for (String userId : interestedUsers) {
+                                    db.collection("users").document(userId)
+                                            .get()
+                                            .addOnCompleteListener(userTask -> {
+                                                if (userTask.isSuccessful()) {
+                                                    DocumentSnapshot userDocument = userTask.getResult();
+                                                    if (userDocument.exists()) {
+                                                        User user = userDocument.toObject(User.class);
+                                                        userList.add(user);
+                                                        Log.w(TAG, "listenForInterestedUsers: " + user.toString());
+                                                        // Update the RecyclerView when a new user is added
+                                                        runOnUiThread(() -> {
+                                                            WorkerAdapter adapter = new WorkerAdapter(userList);
+                                                            slide.setVisibility(View.GONE);
+                                                            recyclerView.setAdapter(adapter);
+                                                        });
+                                                    }
+                                                } else {
+                                                    Log.w(TAG, "Error getting user document.", userTask.getException());
+                                                }
+                                            });
+                                }
+                            } else {
+                                runOnUiThread(() -> Utility.showToast(needworkActivity.this, "No interested users at the moment. Please try again later."));
+                            }
+                        }
+                        swipeRefreshLayout.setRefreshing(false);
+                    });
+        }
+    }
 
     @Override
     protected void onStop() {
@@ -114,15 +161,12 @@ private TextView slide;
         updates.put("lookingforservice", false); // or whatever the default value is
         updates.put("latitude", -1);
         updates.put("longitude", -1);
-        updates.put("interestedUsers",null);
+        updates.put("interestedUsers", null);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-            assert user != null;
-            DocumentReference docRef = db.collection("users").document(user.getUid());
+        DocumentReference docRef = db.collection("users").document(user.getUid());
         docRef
                 .update(updates)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
     }
-
 }
