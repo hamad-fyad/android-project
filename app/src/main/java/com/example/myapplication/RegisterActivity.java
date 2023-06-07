@@ -2,7 +2,9 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -22,12 +24,16 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText emailEditText, passwordEditText, confirmPasswordEditText, nameEditText, addressEditText,numberEditText;
     private  Button createAccountBtn;
     private ProgressBar progressBar;
+    private SharedPreferences sharedPreferences ;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
         emailEditText = findViewById(R.id.email_edit_text);
         passwordEditText = findViewById(R.id.password_edit_text);
         confirmPasswordEditText = findViewById(R.id.confirm_Password_edit_text);
@@ -94,8 +100,10 @@ public class RegisterActivity extends AppCompatActivity {
     private void saveUserToFirestore(String name, String address,String email,String number) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         User user= new User(name.toLowerCase(),address.toLowerCase(),email.trim(),number,uid);
-
-
+        SharedPreferences.Editor user1=sharedPreferences.edit();
+        user1.putString("uid",uid);
+        user1.putString("email",email);
+        user1.apply();
 
         FirebaseFirestore.getInstance().collection("users")
                 .document(uid)

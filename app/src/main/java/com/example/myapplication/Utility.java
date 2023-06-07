@@ -22,11 +22,22 @@ public class Utility {
         void onBuildingReceived(Buildings building);
         void onError(Exception e);
     }
-    public static void getBuilding(BuildingCallBack callBack,String buildinguid){
+    public static void getBuilding(BuildingCallBack callBack, String buildingUid) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-
+        firestore.collection("Buildings")
+                .document(buildingUid)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Buildings building = documentSnapshot.toObject(Buildings.class);
+                        callBack.onBuildingReceived(building);
+                    } else {
+                        callBack.onError(new Exception("No such building exists"));
+                    }
+                })
+                .addOnFailureListener(callBack::onError);
     }
+
     public static Location getCurrentLocation(Context context) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -55,54 +66,26 @@ public class Utility {
 
         firestore.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                String name = documentSnapshot.getString("name");
-                String email = documentSnapshot.getString("email");
-                String address = documentSnapshot.getString("address");
-                String number = documentSnapshot.getString("number");
-                String photoURL = documentSnapshot.getString("photoURL");
-                long buildingcount = documentSnapshot.getLong("buildingcount");
-                boolean lookingforwork = documentSnapshot.getBoolean("lookingForWork");
-                boolean lookingforservice=documentSnapshot.getBoolean("lookingforservice");
-                double latitude=documentSnapshot.getDouble("latitude");
-                double longitude=documentSnapshot.getDouble("longitude");
-
-                User user = new User(name, address, email, number, photoURL, buildingcount, lookingforwork,longitude,latitude,lookingforservice,uid);
+               User user=documentSnapshot.toObject(User.class);
                 callback.onUserReceived(user);
             } else {
                 Log.d(TAG, "No such document");
                 callback.onError(new Exception("No such document"));
             }
-        }).addOnFailureListener(e -> {
-            Log.w(TAG, "Error getting user data", e);
-            callback.onError(e);
-        });
+        }).addOnFailureListener(callback::onError);
     }
 
     public static void getUser(UserCallback callback,String id ) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection("users").document(id).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                String name = documentSnapshot.getString("name");
-                String email = documentSnapshot.getString("email");
-                String address = documentSnapshot.getString("address");
-                String number = documentSnapshot.getString("number");
-                String photoURL = documentSnapshot.getString("photoURL");
-                long buildingcount = documentSnapshot.getLong("buildingcount");
-                boolean lookingforwork = documentSnapshot.getBoolean("lookingForWork");
-                boolean lookingforservice=documentSnapshot.getBoolean("lookingforservice");
-                double latitude=documentSnapshot.getDouble("latitude");
-                double longitude=documentSnapshot.getDouble("longitude");
-
-                User user = new User(name, address, email, number, photoURL, buildingcount, lookingforwork,longitude,latitude,lookingforservice,id);
+                   User user=documentSnapshot.toObject(User.class);
                 callback.onUserReceived(user);
             } else {
                 Log.d(TAG, "No such document");
                 callback.onError(new Exception("No such document"));
             }
-        }).addOnFailureListener(e -> {
-            Log.w(TAG, "Error getting user data", e);
-            callback.onError(e);
-        });
+        }).addOnFailureListener(callback::onError);
     }
 
 

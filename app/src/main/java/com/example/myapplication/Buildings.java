@@ -18,7 +18,7 @@ public class Buildings  {
     private int number;
     private int view;
     private String Uid;
-    private Date postCreatedDate;
+    private Date postCreatedDate,sellDate;
     private boolean isSold;
     private double longitude,latitude;
     public Buildings(Context context, String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption, String typeofbuilding) {
@@ -42,6 +42,24 @@ public class Buildings  {
         this.type = selectedOption;
         this.typeofbuilding = typeofbuilding;
         this.postCreatedDate = new Date();
+        this.view=0;
+        this.sellDate=null;
+    }
+
+    public int getView() {
+        return view;
+    }
+
+    public void setView(int view) {
+        this.view = view;
+    }
+
+    public Date getSellDate() {
+        return sellDate;
+    }
+
+    public void setSellDate(Date sellDate) {
+        this.sellDate = sellDate;
     }
 
     public String getTypeofbuilding() {

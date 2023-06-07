@@ -53,26 +53,20 @@ public class MainActivity extends AppCompatActivity {
          swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         List<String> dictionary = new ArrayList<>();
         //here i used this because some words would have some problem and would be diffrent
+
         dictionary.addAll(Arrays.asList(
-                "the", "be", "to", "of", "and", "a", "in", "that", "have", "I", "it",
-                "for", "not", "on", "with", "he", "as", "you", "do", "at", "this",
-                "but", "his", "by", "from", "they", "we", "say", "her", "she", "or",
-                "an", "will", "my", "one", "all", "would", "there", "their", "what",
-                "so", "up", "out", "if", "about", "who", "get", "which", "go", "me"
-        ));
-        dictionary.addAll(Arrays.asList(
-                "address","agreement","price", "apartment",
-                "area", "assessment", "asset","balcony", "bathroom", "bedroom", "bill", "block", "building",
+                "address","agreement","price", "apartment","yanouh","yarka","bet jen","kermail","haifa","tel aviv",
+                 "assessment", "asset","balcony", "bathroom", "bedroom", "bill", "block", "building",
                 "capital", "charge", "city", "client", "commission", "community", "contract", "cost", "county",
                 "deposit", "design", "discount", "downtown", "equity", "estate", "eviction", "excellent", "expensive",
-                "garage", "garden", "gated", "good", "ground", "home", "house",
+                "garage", "garden", "ground", "home", "house",
                 "housing", "improvement", "income", "inspection", "interest",
-                "location", "lot", "maintenance", "management", "market",
+                "location",  "maintenance", "management", "market",
                 "neighborhood", "offer", "office", "property", "rental",
-                "residential","room","sale","sell","seller","service","story","street","structure","suburb","town","value","village"
+                "residential","room","service","story","street","structure","suburb","town","value","village"
         ));
 
-        TypoFixer typoFixer = new TypoFixer(dictionary);
+        this.typoFixer = new TypoFixer(dictionary);
 
 
 
@@ -125,12 +119,14 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchBuildings(query);
+                Log.d(TAG, "onQueryTextSubmit: "+typoFixer.fixTypos(query) );
+                searchBuildings(typoFixer.fixTypos(query));
                 return true;
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchBuildings(newText);
+                Log.d(TAG, "onQueryTextSubmit: "+typoFixer.fixTypos(newText) );
+                searchBuildings(typoFixer.fixTypos(newText));
                 return false;
             }
         });
@@ -182,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // TODO: 04/06/2023 implement the typoFixer in this function or in the text search field  
     private void searchBuildings(String searchText) {
         int maxSize = Integer.MAX_VALUE;
         int maxPrice = Integer.MAX_VALUE;

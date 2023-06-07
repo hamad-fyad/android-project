@@ -66,9 +66,6 @@ public class needworkActivity extends AppCompatActivity {
                 // Location permission is not granted, request it
                 PermissionUtils.requestFineLocationPermission(this);
             }
-        } else {
-            // User is null. Handle this case
-            Utility.showToast(this, "User not found. Please ensure you are logged in.");
         }
 
         recyclerView = findViewById(R.id.worker_view);
@@ -92,7 +89,8 @@ public class needworkActivity extends AppCompatActivity {
                     return true;
                 case R.id.service:
                     // Start ServiceActivity
-                    Utility.showToast(needworkActivity.this, "You are already on the service page");
+                    Intent serve = new Intent(needworkActivity.this, serviceActivity2.class);
+                    startActivity(serve);
                     return true;
             }
             return false;
@@ -143,7 +141,11 @@ public class needworkActivity extends AppCompatActivity {
                                             });
                                 }
                             } else {
-                                runOnUiThread(() -> Utility.showToast(needworkActivity.this, "No interested users at the moment. Please try again later."));
+                                runOnUiThread(() -> {
+                                    if (!isFinishing()) {
+                                        Utility.showToast(needworkActivity.this, "No interested users at the moment. Please try again later.");
+                                    }
+                                });
                             }
                         }
                         swipeRefreshLayout.setRefreshing(false);

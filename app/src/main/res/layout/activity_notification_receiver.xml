@@ -25,6 +25,7 @@
         android:width="250dp"
         android:textSize="20sp"
         android:height="100dp"
+        android:background="@drawable/rounded_corner"
         />
 
     <Button
@@ -36,6 +37,7 @@
         android:layout_centerHorizontal="true"
         android:text="Not Sold"
         android:width="250dp"
+        android:background="@drawable/rounded_corner"
         android:height="100dp"
         android:textSize="20sp"/>
 

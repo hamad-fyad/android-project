@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -25,7 +24,7 @@
             android:exported="false" />
         <activity
             android:name=".NotificationReceiverActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".ChatRoomActivity"
             android:exported="false" />
@@ -37,6 +36,7 @@
             android:exported="false" />
 
         <meta-data
+
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA27X6MQ63Qhg3S-kB_ZZLvsP28FxlkAJU" />
 

@@ -3,7 +3,9 @@ package com.example.myapplication;
 import static android.content.ContentValues.TAG;
 
 import androidx.fragment.app.FragmentActivity;
+import com.google.android.gms.maps.model.Circle;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +14,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -19,11 +22,11 @@ import com.example.myapplication.databinding.ActivityMapsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +35,8 @@ import java.util.Map;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-   private ArrayList<User> workers=new ArrayList<>();
+    private Circle circle;
+    private  Location location1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +46,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         DocumentReference docRef = db.collection("users").document(user.getUid());
 
         // Check if permissions are granted
-        Location location = Utility.getCurrentLocation(this);
+     location1 = Utility.getCurrentLocation(this);
         Map<String, Object> updates = new HashMap<>();
 
-        if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
+        if (location1 != null) {
+            double latitude = location1.getLatitude();
+            double longitude = location1.getLongitude();
 
             updates.put("lookingforservice", true);
             updates.put("latitude", latitude);
@@ -58,7 +62,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             updates.put("latitude", -1); //use default values when location is not available
             updates.put("longitude", -1);
         }
-
         docRef.update(updates)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "DocumentSnapshot successfully updated!");
@@ -73,15 +76,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -92,64 +86,79 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Query query = doc.whereEqualTo("lookingForWork", true)
                 .whereNotEqualTo("uid", user.getUid());
 
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.w(TAG, "onMapReady task : "+task.getResult().size());
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    workers.add(document.toObject(User.class));
+        Map<String, Marker> markers = new HashMap<>();
+
+        query.addSnapshotListener((value, e) -> {
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e);
+                return;
+            }
+
+            for (DocumentChange docChange : value.getDocumentChanges()) {
+                User changedUser = docChange.getDocument().toObject(User.class);
+                String uid = changedUser.getUid();
+                LatLng location = new LatLng(changedUser.getLatitude(), changedUser.getLongitude());
+                switch (docChange.getType()) {
+                    case ADDED:
+                        Log.d(TAG, "onMapReady: "+location1.getLatitude()+" "+location1.getLongitude());
+                        double distance = haversine(location1.getLatitude(), location1.getLongitude(), changedUser.getLatitude(), changedUser.getLongitude());
+                        if (distance <= 5) {
+                            // If yes, add a marker for this user
+                            Marker marker = mMap.addMarker(new MarkerOptions().position(location).title(changedUser.getName()));
+                            marker.setTag(changedUser);
+                            markers.put(uid, marker);
+                        }
+                        break;
+
+                    case MODIFIED:
+                        markers.get(uid).setPosition(location);
+                        markers.get(uid).setTitle(changedUser.getName());
+                        markers.get(uid).setTag(changedUser);
+                        break;
+                    case REMOVED:
+                        markers.get(uid).remove();
+                        markers.remove(uid);
+                        break;
+                }
+            }
+
+            Utility.getUser(new Utility.UserCallback() {
+                @Override
+                public void onUserReceived(User user12) {
+                    LatLng current = new LatLng(user12.getLatitude(), user12.getLongitude());
+                    mMap.addMarker(new MarkerOptions().position(current).title("you are here "));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+                    CircleOptions circleOptions = new CircleOptions()
+                            .center(current)
+                            .radius(5000) // Radius in meters (5 km)
+                            .strokeWidth(2)
+                            .strokeColor(Color.BLUE)
+                            .fillColor(Color.parseColor("#80ADD8E6")); // Transparent blue color for the fill
+
+                    circle = mMap.addCircle(circleOptions);
+
+                    mMap.setOnMarkerClickListener(marker -> {
+                        User clickedUser = (User) marker.getTag();
+                        if (clickedUser != null) {
+                            String clickedUserId = clickedUser.getUid();
+                            DocumentReference clickedUserDoc = firestore.collection("users").document(clickedUserId);
+                            clickedUserDoc.update("interestedUsers", FieldValue.arrayUnion(user12.getUid()))
+                                    .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
+                                    .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
+                        }
+                        return false;
+                    });
                 }
 
-
-                Utility.getUser(new Utility.UserCallback() {
-                    @Override
-                    public void onUserReceived(User user) {
-                        LatLng current = new LatLng(user.getLatitude(), user.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(current).title("you are here "));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-                        Utility.showToast(MapsActivity.this,""+workers.size());
-                        Log.w(TAG, "onUserReceived: "+workers.size() );
-                        double userLat = user.getLatitude();
-                        double userLon = user.getLongitude();
-
-
-                        for (User user1 : workers) {
-                            Utility.showToast(MapsActivity.this,"hello");
-                            if (haversine(userLat, userLon, user1.getLatitude(), user1.getLongitude()) <= 50) {
-                                LatLng userLocation = new LatLng(user1.getLatitude(), user1.getLongitude());
-                                Marker marker = mMap.addMarker(new MarkerOptions().position(userLocation).title(user1.getName()));
-                                // Store the user object in the marker
-                                marker.setTag(user1);
-                            }
-                        }
-
-                        // Set up the OnMarkerClickListener
-                        mMap.setOnMarkerClickListener(marker -> {
-                            User clickedUser = (User) marker.getTag();
-                            if (clickedUser != null) {
-                                String clickedUserId = clickedUser.getUid();  // Replace getUserId() with the correct method in your User class
-                                DocumentReference clickedUserDoc = firestore.collection("users").document(clickedUserId);
-                                clickedUserDoc.update("interestedUsers", FieldValue.arrayUnion(user.getUid()))
-                                        .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
-                                        .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
-                            }
-                            return false;
-                        });
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Log.d("didn't get the current users ", e.getMessage());
-                    }
-                });
-            } else {
-                Log.w(TAG, "Error getting documents.", task.getException());
-            }
+                @Override
+                public void onError(Exception e) {
+                    Log.d("didn't get the current users ", e.getMessage());
+                }
+            });
         });
-        //here for testing because it doesn't show in the emulator
-//        LatLng sydney = new LatLng(32.98449634833544, 35.24621557788863);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+
     @Override
     protected void onStop() {
         super.onStop();
