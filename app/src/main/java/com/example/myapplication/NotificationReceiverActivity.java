@@ -54,7 +54,7 @@ public class NotificationReceiverActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 // handle error
-                // TODO: 07/06/2023 handle the error on building not found or no internet
+                Utility.showToast(NotificationReceiverActivity.this,"no internet check you connection please ");
             }
         }, buildingUid);
     }

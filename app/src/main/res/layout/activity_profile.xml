@@ -30,7 +30,12 @@
         android:paddingTop="15dp"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         tools:ignore="NotSibling">
-
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/UID"
+    android:visibility="gone"
+    />
         <TextView
             android:id="@+id/user_name_form_database"
             android:layout_width="match_parent"

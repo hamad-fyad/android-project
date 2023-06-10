@@ -9,9 +9,12 @@ public class User {
     private boolean lookingForWork,lookingforservice;
     private double longitude,latitude;
     private List<String> interestedUsers;
+    private long sellTimeSum;
+    private long soldCount;
 
 
-    public User(String name, String address, String email, String number, String photoURL, long buildingcount, boolean lookingforwork, double longitude, double latitude, boolean lookingforservice, String uid) {
+
+    public User(String name, String address, String email, String number, String photoURL, long buildingcount, boolean lookingforwork, double longitude, double latitude, boolean lookingforservice, String uid,long sellTimeSum,long soldCount) {
         this.name=name;
         this.address=address;
         this.email=email;
@@ -23,6 +26,8 @@ public class User {
         this.latitude=latitude;
         this.lookingforservice=lookingforservice;
         this.uid=uid;
+        this.sellTimeSum=sellTimeSum;
+        this.soldCount=soldCount;
     }
 
     public User(String name, String address, String email, String number, String uid) {
@@ -37,7 +42,9 @@ public class User {
         this.uid=uid;
         this.latitude=1;
         this.longitude=1;
-        this.interestedUsers = new ArrayList<>(); // Add this line
+        this.interestedUsers = new ArrayList<>();
+        this.sellTimeSum=0;
+        this.soldCount=0;
 
     }
 
@@ -130,6 +137,21 @@ public class User {
 
     public void setInterestedUsers(List<String> interestedUsers) {
         this.interestedUsers = interestedUsers;
+    }
+    public long getSellTimeSum() {
+        return sellTimeSum;
+    }
+
+    public void setSellTimeSum(long sellTimeSum) {
+        this.sellTimeSum = sellTimeSum;
+    }
+
+    public long getSoldCount() {
+        return soldCount;
+    }
+
+    public void setSoldCount(long soldCount) {
+        this.soldCount = soldCount;
     }
 
     public String getEmail() {

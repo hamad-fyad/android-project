@@ -39,9 +39,8 @@ public class AddBuildingActivity extends AppCompatActivity {
     private List<Uri> selectedImagesUris;
     private RadioGroup radioGroup;
     private RadioButton radioButton;
-    public AddBuildingActivity() {
-    }
 
+    // TODO: 10/06/2023 add to the string the building types
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

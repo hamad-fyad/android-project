@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,7 +37,7 @@ import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 private Button chat,logout,personalSpace;
-    private TextView Name, Address, Email, Number;
+    private TextView Name, Address, Email, Number,UID;
     private EditText Name1, Address1, Number1;
     private MaterialButton EditProfile, save;
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -45,9 +46,11 @@ private Button chat,logout,personalSpace;
     private ProgressBar progressBar;
     private StorageReference storageReference;
     private Uri imageUri;
+    private SharedPreferences sp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sp=getSharedPreferences("MyPreferences",0);
         setContentView(R.layout.activity_profile);
          progressBar = findViewById(R.id.Progress_bar);
         imageView = findViewById(R.id.picture);
@@ -59,6 +62,9 @@ private Button chat,logout,personalSpace;
         Address1 = findViewById(R.id.address1);
         Number1 = findViewById(R.id.number1);
 
+        String uid =sp.getString("uid",null);
+        UID=findViewById(R.id.UID);
+        UID.setText(uid);
       personalSpace = findViewById(R.id.personalSpace);
         loadUserData();
         if(!PermissionUtils.hasCameraPermission(this)){

@@ -23,22 +23,18 @@ import java.util.concurrent.TimeUnit;
 
 public class CheckSoldStatusWorker extends Worker {
     private static final String TAG = "CheckSoldStatusWorker";
-
     public CheckSoldStatusWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
-
     @NonNull
     @Override
     public Result doWork() {
         checkPostsDaily();
         return Result.success();
     }
-
     private void checkPostsDaily() {
         Calendar threeMonthsAgo = Calendar.getInstance();
         threeMonthsAgo.add(Calendar.MONTH, -3);
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Buildings")
                 .whereLessThan("timestamp", threeMonthsAgo.getTime())
@@ -80,7 +76,6 @@ public class CheckSoldStatusWorker extends Worker {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(resultPendingIntent);
-
         int notificationId = building.getUid().hashCode();
         notificationManager.notify(notificationId, builder.build());
     }
@@ -92,6 +87,4 @@ public class CheckSoldStatusWorker extends Worker {
                 .build();
         WorkManager.getInstance(getApplicationContext()).enqueue(deletionRequest);
     }
-
-
 }
