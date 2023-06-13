@@ -25,15 +25,14 @@ public class DeleteBuildingWorker extends Worker {
         Utility.getBuilding(new Utility.BuildingCallBack() {
             @Override
             public void onBuildingReceived(Buildings building) {
-                // Check if building has been marked as sold or not sold
-                if (!building.isSold()) {
+
                     deleteBuildingFromDatabase(buildingUid);
-                }
+
             }
 
             @Override
             public void onError(Exception e) {
-                // handle error
+                Log.d(TAG, "onError: "+e.toString());
             }
         }, buildingUid);
         

@@ -8,7 +8,6 @@ import java.util.Set;
 public class TypoFixer {
     private List<String> dictionary;
 
-
     public TypoFixer(List<String> dictionary) {
         this.dictionary = new ArrayList<>(dictionary);
     }
@@ -32,7 +31,7 @@ public class TypoFixer {
     private String getCorrection(String word) {
         String suggestedCorrection = word;
         int minDistance = Integer.MAX_VALUE;
-
+        //here we check every word until we find the best one using the min amount of times to change a word
         for (String dictWord : dictionary) {
             int distance = calculateLevenshteinDistance(word, dictWord);
             if (distance < minDistance) {
@@ -43,7 +42,7 @@ public class TypoFixer {
 
         return suggestedCorrection;
     }
-
+    // in this algo we check the min amount to change a string with another with insertions, deletions, and substitutions and that's
     private int calculateLevenshteinDistance(String word1, String word2) {
         int m = word1.length();
         int n = word2.length();

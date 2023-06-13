@@ -20,16 +20,8 @@ public class Buildings  {
     private String Uid;
     private Date postCreatedDate,sellDate;
     private boolean isSold;
-    private double longitude,latitude;
-    public Buildings(Context context, String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption, String typeofbuilding) {
-        Location location = Utility.getCurrentLocation(context);
-        if (location != null) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-        }else {
-            Utility.showToast(context,"could not get the location of the building try adding again");
-            return;
-        }
+    public Buildings() {}
+    public Buildings( String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption, String typeofbuilding) {
         this.view=0;
         this.picture = imageUrls;
         this.Uid = buildingUid;
@@ -44,6 +36,7 @@ public class Buildings  {
         this.postCreatedDate = new Date();
         this.view=0;
         this.sellDate=null;
+        this.isSold=false;
     }
 
     public int getView() {
@@ -78,16 +71,7 @@ public class Buildings  {
         this.type = type;
     }
 
-    public Buildings( String address, double price, double size, String user,ArrayList<String> picture,String Uid) {
-        this.picture=picture;
-        this.Uid=Uid;
-        this.Address = address;
-        this.Price = price;
-        this.Size = size;
-        this.useruid = user;
-        Random random = new Random();
-        this.number = random.nextInt();
-    }
+
 
     public boolean isSold() {
         return isSold;
@@ -97,21 +81,6 @@ public class Buildings  {
         isSold = sold;
     }
 
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
 
     public Date getPostCreatedDate() {
         return postCreatedDate;
@@ -121,7 +90,6 @@ public class Buildings  {
         this.postCreatedDate = postCreatedDate;
     }
 
-    public Buildings() {}
 
     public int getNumber() {
         return number;

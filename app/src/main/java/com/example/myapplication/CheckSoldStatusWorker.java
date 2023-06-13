@@ -40,7 +40,7 @@ public class CheckSoldStatusWorker extends Worker {
                 .whereLessThan("timestamp", threeMonthsAgo.getTime())
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
+                    if (task.isSuccessful()&&task.getResult().size()>0) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Buildings building = document.toObject(Buildings.class);
                             sendNotification(building);

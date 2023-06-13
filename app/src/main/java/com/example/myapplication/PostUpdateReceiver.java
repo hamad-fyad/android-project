@@ -24,6 +24,7 @@ public class PostUpdateReceiver extends BroadcastReceiver {
             updateStatisticsAndDeleteBuilding(buildingId);
         } else if (action.equals("notSold")) {
             // TODO: handle "notSold" action
+
         }
     }
 

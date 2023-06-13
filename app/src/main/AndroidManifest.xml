@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
-            android:name=".statsticsview"
+            android:name=".StatisticsView"
             android:exported="false" />
         <activity
             android:name=".ChatsActivity"

@@ -37,7 +37,7 @@ import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 private Button chat,logout,personalSpace;
-    private TextView Name, Address, Email, Number,UID;
+    private TextView Name, Address, Email, Number,UID,statistics;
     private EditText Name1, Address1, Number1;
     private MaterialButton EditProfile, save;
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -47,6 +47,7 @@ private Button chat,logout,personalSpace;
     private StorageReference storageReference;
     private Uri imageUri;
     private SharedPreferences sp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +62,7 @@ private Button chat,logout,personalSpace;
         Name1 = findViewById(R.id.text_name1);
         Address1 = findViewById(R.id.address1);
         Number1 = findViewById(R.id.number1);
-
+        statistics=findViewById(R.id.statistics);
         String uid =sp.getString("uid",null);
         UID=findViewById(R.id.UID);
         UID.setText(uid);
@@ -102,7 +103,7 @@ private Button chat,logout,personalSpace;
             }
             return false;
         });
-
+            statistics.setOnClickListener(v->startActivity(new Intent(ProfileActivity.this,StatisticsView.class)));
         storageReference = FirebaseStorage.getInstance().getReference("uploads");
 
         // Set an OnClickListener on the profile image view
@@ -120,6 +121,11 @@ private Button chat,logout,personalSpace;
     private void Logout() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+        /*
+        if set, and the activity being launched is already running in the current task,
+        then instead of launching a new instance of that activity, all of the other activities
+        on top of it will be closed and this Intent will be delivered to the (now on top) old activity as a new Intent.
+         */
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

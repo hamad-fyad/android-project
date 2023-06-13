@@ -20,6 +20,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Profile"
             app:titleTextColor="@color/white" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
@@ -36,6 +37,7 @@
     android:id="@+id/UID"
     android:visibility="gone"
     />
+
         <TextView
             android:id="@+id/user_name_form_database"
             android:layout_width="match_parent"
@@ -45,6 +47,16 @@
             android:hint="Hello World"
             android:layout_marginBottom="20dp"
             android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="logout"
+            tools:ignore="MissingConstraints"
+            android:layout_marginStart="290dp"
+            android:layout_marginTop="0dp"
+           />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/picture"
@@ -177,10 +189,11 @@
             android:gravity="center"
             >
             <Button
-                android:id="@+id/logout"
+                android:id="@+id/statistics"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="logout"
+                android:text="statistics"
+                android:layout_marginLeft="5dp"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="159dp"
                 tools:layout_editor_absoluteY="539dp" />
@@ -188,7 +201,7 @@
                 android:id="@+id/personalSpace"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="myPosts"
+                android:text="my Posts"
                 android:layout_marginLeft="5dp"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="159dp"

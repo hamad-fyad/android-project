@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    //implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     implementation 'com.google.maps.android:android-maps-utils:2.3.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'

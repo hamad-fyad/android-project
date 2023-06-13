@@ -40,7 +40,6 @@ public class AddBuildingActivity extends AppCompatActivity {
     private RadioGroup radioGroup;
     private RadioButton radioButton;
 
-    // TODO: 10/06/2023 add to the string the building types
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +63,9 @@ public class AddBuildingActivity extends AppCompatActivity {
         if (!PermissionUtils.hasCameraPermission(this)) {
             PermissionUtils.requestCameraPermission(this);
         }
-
+        if(!PermissionUtils.hasFineLocationPermission(this)){
+            PermissionUtils.requestFineLocationPermission(this);
+        }
 
         selectedImagesUris = new ArrayList<>();
         goBack.setOnClickListener(v -> startActivity(new Intent(AddBuildingActivity.this, MainActivity.class)));
@@ -88,7 +89,7 @@ public class AddBuildingActivity extends AppCompatActivity {
             imageContainer.addView(shapeableImageView);
         }
     }
-private ShapeableImageView createShapeableImageView(Uri imageUri) {
+private ShapeableImageView createShapeableImageView(Uri imageUri) {// function for styling the images and how they appear
     ShapeableImageView shapeableImageView = new ShapeableImageView(this);
     int imageSize = getResources().getDimensionPixelSize(R.dimen.image_size);
     LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageSize, imageSize);
@@ -141,6 +142,11 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+                        long buildingcount=document.getLong("buildingcount");
+                        if (buildingcount==3){
+                            Utility.showToast(this,"you cant add more buildings you have reached the maximum amount");
+                            return;
+                        }
                         String address = Address.getText().toString().toLowerCase().trim();
                         double buildingPrice = Double.parseDouble(price.getText().toString());
                         double buildingSize = Double.parseDouble(size.getText().toString());
@@ -157,7 +163,7 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
                             // Get the UID of the new document
                             String buildingUid = newBuildingRef.getId();
                             //we needed to add the uid so we only
-                            Buildings building = new Buildings( this,address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption,Typeofbuilding);
+                            Buildings building = new Buildings(address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption,Typeofbuilding);
 
                             // Save the Building object to the Firestore database using the generated document reference
                             newBuildingRef.set(building)
@@ -188,13 +194,13 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
         DocumentReference userDocRef = firestore.collection("users").document(userId);
         Long count = userDocument.getLong("buildingcount");
         if (count == null) {
-            count = 1L;
+            count = 0L;
         }
         userDocRef.update("buildingcount", count + 1);
     }
 
 
-
+//An AtomicInteger called imagesUploaded is initialized with a value of 0. This variable will keep track of the number of images that have been successfully uploaded.
     private void uploadImagesAndGetUrls(List<Uri> imageUris, OnImagesUploadedListener listener) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         ArrayList<String> imageUrls = new ArrayList<>();
@@ -217,18 +223,6 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {
         void onImagesUploaded(ArrayList<String> imageUrls);
     }
 
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PermissionUtils.REQUEST_READ_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            } else {
-                Utility.showToast(this, "Permission denied. Unable to access the gallery.");
-            }
-        }
-    }
     private boolean isEmpty(CharSequence text) {
         return text.toString().trim().length() == 0;
     }
