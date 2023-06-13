@@ -141,6 +141,7 @@ public class needworkActivity extends AppCompatActivity {
                                             });
                                 }
                             } else {
+
                                 runOnUiThread(() -> {
                                     if (!isFinishing()) {
                                         Utility.showToast(needworkActivity.this, "No interested users at the moment. Please try again later.");
@@ -160,7 +161,7 @@ public class needworkActivity extends AppCompatActivity {
         // Reset the values in Firestore when the app goes into the background
         Map<String, Object> updates = new HashMap<>();
         updates.put("lookingForWork", false);
-        updates.put("lookingforservice", false); // or whatever the default value is
+        updates.put("lookingforservice", false);
         updates.put("latitude", -1);
         updates.put("longitude", -1);
         updates.put("interestedUsers", null);

@@ -4,7 +4,6 @@ import com.google.firebase.Timestamp;
 
 public class Message {
     private String sentBy;
-    private String nameOfSender;
     private String message;
     private Timestamp timestamp;
 
@@ -13,7 +12,6 @@ public class Message {
 
     public Message(String sentBy, String message, Timestamp timestamp) {
         this.sentBy = sentBy;
-
         this.message = message;
         this.timestamp = timestamp;
     }

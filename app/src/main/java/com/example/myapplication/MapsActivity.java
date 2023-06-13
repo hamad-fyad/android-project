@@ -191,6 +191,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
     }
+    //this function is for finding the dis between two users i used here the haversine formula
     public static double haversine(double lat1, double lon1, double lat2, double lon2) {
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);

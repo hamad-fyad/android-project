@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.WorkManager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -23,7 +24,7 @@ public class NotificationReceiverActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification_receiver);
-
+        Utility.showToast(this,"you have to choose one or it will not cancel the the deleting of the building ");
         String buildingUid = getIntent().getStringExtra("building_uid");
 
         Button soldButton = findViewById(R.id.btn_sold);
@@ -48,7 +49,7 @@ public class NotificationReceiverActivity extends AppCompatActivity {
             public void onBuildingReceived(Buildings building) {
                 building.setSold(true);
                 building.setSellDate(new Date());  // Current date
-                saveBuildingToDatabase(building,1);  // Save changes to database
+                saveBuildingToDatabase(building,1, "sold");  // Save changes to database
             }
 
             @Override
@@ -64,7 +65,7 @@ public class NotificationReceiverActivity extends AppCompatActivity {
             @Override
             public void onBuildingReceived(Buildings building) {
                 building.setSold(false);
-                saveBuildingToDatabase(building,1);  // Save changes to database
+                saveBuildingToDatabase(building,1, "notSold");  // Save changes to database
             }
 
             @Override
@@ -74,7 +75,7 @@ public class NotificationReceiverActivity extends AppCompatActivity {
         }, buildingUid);
     }
 
-    private void saveBuildingToDatabase(Buildings building, int attempt) {
+    private void saveBuildingToDatabase(Buildings building, int attempt, String action) {
         if (attempt > 3) {
             Utility.showToast(this,"Failed to update the building after several attempts. Please check your internet connection.");
             return;
@@ -86,13 +87,14 @@ public class NotificationReceiverActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Building successfully updated!");
                     Utility.showToast(this,"Thanks, everything is updated.");
+                    sendBroadcast(action, building.getUid());
                 })
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "Error updating building", e);
                     Utility.showToast(this,"Error occurred. Trying again...");
 
                     // Retry saving to database
-                    saveBuildingToDatabase(building, attempt + 1);
+                    saveBuildingToDatabase(building, attempt + 1, action);
                 });
     }
 
@@ -100,4 +102,11 @@ public class NotificationReceiverActivity extends AppCompatActivity {
         WorkManager.getInstance(this).cancelAllWorkByTag(buildingUid);
     }
 
+    private void sendBroadcast(String action, String buildingId) {
+        Intent intent = new Intent();
+        intent.setAction("com.example.myapplication.BUILDING_UPDATE_ACTION");
+        intent.putExtra("action", action);
+        intent.putExtra("buildingId", buildingId);
+        this.sendBroadcast(intent);
+    }
 }

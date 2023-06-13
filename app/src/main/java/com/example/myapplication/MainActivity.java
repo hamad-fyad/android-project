@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    // TODO: 13/06/2023 add the types of buildings  
     private void searchBuildings(String searchText) {
         int maxSize = Integer.MAX_VALUE;
         int maxPrice = Integer.MAX_VALUE;
