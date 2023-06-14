@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import androidx.fragment.app.FragmentActivity;
 import com.google.android.gms.maps.model.Circle;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -123,6 +124,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             Utility.getUser(new Utility.UserCallback() {
+                @SuppressLint("PotentialBehaviorOverride")
                 @Override
                 public void onUserReceived(User user12) {
                     LatLng current = new LatLng(user12.getLatitude(), user12.getLongitude());

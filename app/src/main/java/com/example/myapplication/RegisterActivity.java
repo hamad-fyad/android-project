@@ -103,6 +103,7 @@ public class RegisterActivity extends AppCompatActivity {
         SharedPreferences.Editor user1=sharedPreferences.edit();
         user1.putString("uid",uid);
         user1.putString("email",email);
+        user1.putString("name",name);
         user1.apply();
 
         FirebaseFirestore.getInstance().collection("users")

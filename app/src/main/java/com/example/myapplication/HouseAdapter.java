@@ -47,9 +47,12 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                 String email = documentSnapshot.getString("email");
                 String number = documentSnapshot.getString("number");
                 String buildingDetails = "Address: " + building.getAddress() + "\n" +
-                        "Price: " + building.getPrice() + " $\n" +
-                        "Size: " + building.getSize()+ " m\n"+email+
-                        "\n"+number;
+                        building.getTypeofbuilding() + "\nPrice: " +
+                        building.getPrice() + " $\n" +
+                        "Size: " + building.getSize()+ " m\n" +
+                        (building.getType().equals("Selling") ? "for sale\n" : "for rent\n")+
+                        email + "\n" + number;
+
                 holder.textViewDetails.setText(buildingDetails);
                 // Set up click listener for itemView
                 holder.itemView.setOnClickListener(v -> {

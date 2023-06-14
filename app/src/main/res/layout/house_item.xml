@@ -3,7 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_marginBottom="1dp">
+    android:layout_marginBottom="1dp"
+    android:minWidth="48dp"
+    android:paddingTop="1dp"
+    android:layout_marginTop="50dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
+    android:paddingVertical="1dp"
+    android:background="@drawable/border"
+    android:paddingBottom="-50dp"
+    >
 
     <ImageView
         android:id="@+id/imageView"
@@ -26,6 +35,7 @@
         android:layout_height="292dp"
         android:layout_marginBottom="40dp"
         android:paddingBottom="10dp"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        />
 
 </LinearLayout>

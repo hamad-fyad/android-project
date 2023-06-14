@@ -147,10 +147,14 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
                             Utility.showToast(this,"you cant add more buildings you have reached the maximum amount");
                             return;
                         }
+
                         String address = Address.getText().toString().toLowerCase().trim();
                         double buildingPrice = Double.parseDouble(price.getText().toString());
                         double buildingSize = Double.parseDouble(size.getText().toString());
                         String Typeofbuilding=typeofbuilding.getSelectedItem().toString().trim();
+                        Address.setText("");
+                        price.setText("");
+                        size.setText("");
 
                         // Increment building count for the user
                         incrementUserBuildingCount(document);
@@ -184,6 +188,7 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
         } else {
             Utility.showToast(this, "Please select a radio button option");
         }
+
     }
 
 

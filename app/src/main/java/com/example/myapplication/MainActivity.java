@@ -50,12 +50,13 @@ public class MainActivity extends AppCompatActivity {
         Add_Post.setOnClickListener(v->startActivity(new Intent(MainActivity.this,AddBuildingActivity.class)));
         bottomNavigationView=findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.browsing);
-         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         List<String> dictionary = new ArrayList<>();
         //here i used this because some words would have some problem and would be diffrent
+
         dictionary.addAll(Arrays.asList(
                 "address","agreement","price", "apartment","yanouh","yarka","bet jen","kermail","haifa","tel aviv",
-                 "assessment", "asset","balcony", "bathroom", "bedroom", "bill", "block", "building",
+                "assessment", "asset","balcony", "bathroom", "bedroom", "bill", "block", "building",
                 "capital", "charge", "city", "client", "commission", "community", "contract", "cost", "county",
                 "deposit", "design", "discount", "downtown", "equity", "estate", "eviction", "excellent", "expensive",
                 "garage", "garden", "ground", "home", "house","private house","appartment","penthouse","Garden Appartment","studio",
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         ));
 
         this.typoFixer = new TypoFixer(dictionary);
+
+
 
         // Utility.showToast(this,"click on the post to open chat with the owner");
 
@@ -127,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
+        // Get buildings initially without any search query
+        // getBuildings(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
         getCloseBuildings();
     }
     private void getCloseBuildings() {
@@ -139,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             public void onUserReceived(User user) {
                 currentuser[0] = user;
                 String address = currentuser[0].getAddress();
-                Query query = housesRef.whereEqualTo("address", address.toLowerCase().trim()).whereEqualTo("isSold", false);
+                Query query = housesRef.whereEqualTo("address", address.toLowerCase().trim());
                 query.get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         List<Buildings> CloseBuildings = new ArrayList<>();
@@ -147,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                             Buildings house = document.toObject(Buildings.class);
                             CloseBuildings.add(house);
                         }
-                        Query query2 = housesRef.whereNotEqualTo("address", address.toLowerCase().trim()).whereEqualTo("isSold", false);
+                        Query query2 = housesRef.whereNotEqualTo("address", address.toLowerCase().trim());
                         query2.get().addOnCompleteListener(task1 -> {
                             if (task1.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task1.getResult()) {
@@ -174,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // TODO: 13/06/2023 add the types of buildings  
     private void searchBuildings(String searchText) {
         int maxSize = Integer.MAX_VALUE;
         int maxPrice = Integer.MAX_VALUE;
@@ -225,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference housesRef = db.collection("Buildings");
 
-        Query query = housesRef.whereLessThanOrEqualTo("price", maxPrice).whereEqualTo("isSold", false);
+        Query query = housesRef.whereLessThanOrEqualTo("price", maxPrice);
 
         if (!address.isEmpty()) {
             query = query.whereEqualTo("address", address.toLowerCase());
@@ -238,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
                     Buildings house = document.toObject(Buildings.class);
 
                     // Filter by size locally
-                    if (house.getSize() <= maxSize) {
+                    if ( house.getSize() <= maxSize) {
                         houses.add(house);
                     }
                 }
@@ -247,8 +250,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
         });
-    }
 
+    }
     private void showBuildings(List<Buildings> buildings) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         HouseAdapter houseAdapter = new HouseAdapter(buildings);

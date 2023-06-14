@@ -2,17 +2,26 @@ package com.example.myapplication;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -29,7 +38,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private EditText messageEditText;
     private ImageButton sendButton;
-
+    private SharedPreferences mypref;
     private FirebaseFirestore db;
     private String otherUserId ,name;
     private List<Message> messages = new ArrayList<>();
@@ -38,6 +47,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_chat_room);
         db = FirebaseFirestore.getInstance();
         currentUserId = getIntent().getStringExtra("ownerId");
@@ -107,10 +117,48 @@ public class ChatRoomActivity extends AppCompatActivity {
                         if (dc.getType() == DocumentChange.Type.ADDED) {
                             Message message = dc.getDocument().toObject(Message.class);
                             messages.add(message);
+                            sendNotification(message);
                         }
                     }
                     messageAdapter.notifyDataSetChanged();
                 });
+    }
+
+    private void sendNotification(Message message) {
+            if (!message.getSentBy().equals(currentUserId))
+            if (MyApplication.isInBackground()) {
+            String channelId = "com.example.myapplication";
+            String channelName = "NewMessageNotification";
+
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+            Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);// The activity to open when the notification is clicked
+                resultIntent.putExtra("ownerId", currentUserId);
+                resultIntent.putExtra("currentUserId",otherUserId);
+            PendingIntent resultPendingIntent = PendingIntent.getActivity(
+                    getApplicationContext(),
+                    0,
+                    resultIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(/*mypref.getString("name","")*/"hamad ")
+                    .setContentText(message.getMessage())//the current user that am using is doesn't have sharedpref
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setAutoCancel(true)
+                    .setContentIntent(resultPendingIntent);
+
+            int notificationId = message.getMessage().hashCode();
+            notificationManager.notify(notificationId, builder.build());
+        }
+
     }
 
 }
