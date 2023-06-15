@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.behindthecurtains;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,6 +15,10 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.myapplication.NotificationReceiverActivity;
+import com.example.myapplication.R;
+
+import com.example.myapplication.classes.Buildings;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -33,25 +37,33 @@ public class CheckSoldStatusWorker extends Worker {
         return Result.success();
     }
     private void checkPostsDaily() {
+        Log.d(TAG, "scheduleBuildingDeletion: byeeeeeeeeeee");
         Calendar threeMonthsAgo = Calendar.getInstance();
         threeMonthsAgo.add(Calendar.MONTH, -3);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Buildings")
-                .whereLessThan("timestamp", threeMonthsAgo.getTime())
+                .whereLessThan("postCreatedDate", threeMonthsAgo.getTime())
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()&&task.getResult().size()>0) {
+                    if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Buildings building = document.toObject(Buildings.class);
-                            sendNotification(building);
+                            if (!building.isSold()) {
+                                sendNotification(building);
+                                Log.d(TAG, "scheduleBuildingDeletion: send");
+                            } else {
+                                Log.d(TAG, "Building is already sold, skipping notification");
+                            }
                         }
                     } else {
                         Log.w(TAG, "Error checking posts.", task.getException());
                     }
                 });
+
     }
 
     private void sendNotification(Buildings building) {
+        Log.d(TAG, "sendNotification: hello");
         String channelId = "com.example.myapplication";
         String channelName = "CheckSoldStatus";
         scheduleBuildingDeletion(building.getUid());
@@ -81,6 +93,8 @@ public class CheckSoldStatusWorker extends Worker {
     }
     private void scheduleBuildingDeletion(String buildingUid) {
         // Schedule deletion in 1 week
+        Log.d(TAG, "scheduleBuildingDeletion: byeeeeeeeeeee");
+
         OneTimeWorkRequest deletionRequest = new OneTimeWorkRequest.Builder(DeleteBuildingWorker.class)
                 .setInputData(new Data.Builder().putString("building_uid", buildingUid).build())
                 .setInitialDelay(7, TimeUnit.DAYS)

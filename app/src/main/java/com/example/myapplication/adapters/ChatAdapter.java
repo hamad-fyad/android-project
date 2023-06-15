@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.adapters;
 
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -11,6 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.myapplication.CHAT.ChatRoomActivity;
+import com.example.myapplication.R;
+import com.example.myapplication.Utilitys.Utility;
+import com.example.myapplication.classes.User;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;

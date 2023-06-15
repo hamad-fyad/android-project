@@ -18,8 +18,12 @@ import android.view.MenuItem;
 
 import android.widget.Button;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.myapplication.Utilitys.TypoFixer;
+import com.example.myapplication.Utilitys.Utility;
+import com.example.myapplication.adapters.HouseAdapter;
+import com.example.myapplication.behindthecurtains.CheckSoldStatusWorker;
+import com.example.myapplication.classes.Buildings;
+import com.example.myapplication.classes.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -27,13 +31,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -72,13 +73,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Utility.showToast(this,"click on the post to open chat with the owner");
 
-        //todo activity when there is timestamp in the buildings in the firestore
-//        PeriodicWorkRequest checkSoldStatusWork =
-//                new PeriodicWorkRequest.Builder(CheckSoldStatusWorker.class, 24, TimeUnit.HOURS)
-//                        // Constraints
-//                        .build();
-//
-//        WorkManager.getInstance(this).enqueue(checkSoldStatusWork);
+        PeriodicWorkRequest checkSoldStatusWork =
+                new PeriodicWorkRequest.Builder(CheckSoldStatusWorker.class,24 , TimeUnit.HOURS)
+
+                        .build();
+
+        WorkManager.getInstance(this).enqueue(checkSoldStatusWork);
 
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
             public void onRefresh() {
                 // Refresh your data here...
                 getCloseBuildings();
-
                 // This will hide the refresh indicator
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -149,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                         List<Buildings> CloseBuildings = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Buildings house = document.toObject(Buildings.class);
+                            if (!house.isSold())
                             CloseBuildings.add(house);
                         }
                         Query query2 = housesRef.whereNotEqualTo("address", address.toLowerCase().trim());
@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                             if (task1.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task1.getResult()) {
                                     Buildings house = document.toObject(Buildings.class);
+                                    if (!house.isSold())
                                     CloseBuildings.add(house);
                                 }
                                 if (!CloseBuildings.isEmpty()) {
@@ -241,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     Buildings house = document.toObject(Buildings.class);
 
                     // Filter by size locally
-                    if ( house.getSize() <= maxSize) {
+                    if (house.getSize() <= maxSize && !house.isSold()) {
                         houses.add(house);
                     }
                 }
@@ -250,8 +251,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
         });
-
     }
+
     private void showBuildings(List<Buildings> buildings) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         HouseAdapter houseAdapter = new HouseAdapter(buildings);

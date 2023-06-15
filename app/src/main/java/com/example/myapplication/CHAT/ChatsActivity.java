@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.CHAT;
 
 import static android.content.ContentValues.TAG;
 import android.content.Intent;
@@ -7,6 +7,12 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.myapplication.MainActivity;
+import com.example.myapplication.ProfileActivity;
+import com.example.myapplication.R;
+import com.example.myapplication.adapters.ChatAdapter;
+import com.example.myapplication.serviceActivity2;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;

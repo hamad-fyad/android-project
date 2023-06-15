@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.CHAT;
 
 import static android.content.ContentValues.TAG;
 
@@ -20,8 +20,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.example.myapplication.MyApplication;
+import com.example.myapplication.R;
+import com.example.myapplication.adapters.MessageAdapter;
+import com.example.myapplication.classes.Message;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;

@@ -3,6 +3,9 @@ package com.example.myapplication;
 import static android.content.ContentValues.TAG;
 
 import androidx.fragment.app.FragmentActivity;
+
+import com.example.myapplication.Utilitys.Utility;
+import com.example.myapplication.classes.User;
 import com.google.android.gms.maps.model.Circle;
 
 import android.annotation.SuppressLint;
@@ -29,7 +32,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

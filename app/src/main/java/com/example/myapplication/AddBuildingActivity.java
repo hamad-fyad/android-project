@@ -2,7 +2,6 @@ package com.example.myapplication;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -16,8 +15,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.myapplication.Utilitys.PermissionUtils;
+import com.example.myapplication.Utilitys.Utility;
+import com.example.myapplication.classes.Buildings;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.firebase.auth.FirebaseAuth;

@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.adapters;
 
 import static android.content.ContentValues.TAG;
 
@@ -15,6 +15,10 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import com.example.myapplication.CHAT.ChatRoomActivity;
+import com.example.myapplication.R;
+import com.example.myapplication.Utilitys.Utility;
+import com.example.myapplication.classes.Buildings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;

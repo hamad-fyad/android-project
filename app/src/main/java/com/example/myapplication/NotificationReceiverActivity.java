@@ -2,7 +2,6 @@ package com.example.myapplication;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.WorkManager;
 
@@ -11,8 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.myapplication.Utilitys.Utility;
+import com.example.myapplication.classes.Buildings;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -32,6 +31,8 @@ public class NotificationReceiverActivity extends AppCompatActivity {
             // handle "Sold" click
             markBuildingAsSold(buildingUid);
             cancelBuildingDeletion(buildingUid);
+            Intent intent=new Intent(this,MainActivity.class);
+            startActivity(intent);
 
         });
 
@@ -40,6 +41,8 @@ public class NotificationReceiverActivity extends AppCompatActivity {
             // handle "Not Sold" click
             markBuildingAsNotSold(buildingUid);
             cancelBuildingDeletion(buildingUid);
+            Intent intent=new Intent(this,MainActivity.class);
+            startActivity(intent);
         });
     }
 

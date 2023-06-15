@@ -20,6 +20,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import com.example.myapplication.CHAT.ChatsActivity;
+import com.example.myapplication.Utilitys.PermissionUtils;
+import com.example.myapplication.Utilitys.Utility;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -112,7 +115,7 @@ private Button chat,logout,personalSpace;
 
 
     private void Chat() {
-        Intent intent=new Intent(ProfileActivity.this,ChatsActivity.class);
+        Intent intent=new Intent(ProfileActivity.this, ChatsActivity.class);
         intent.putExtra("currentUserId",firebaseUser.getUid());
         startActivity(intent);
 

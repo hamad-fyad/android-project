@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.app.Application;
 import android.util.Log;
+
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -27,6 +28,12 @@ public class MyApplication extends Application implements LifecycleObserver {
     void onAppBackgrounded() {
         isInBackground = true;
         Log.d("MyApp", "App in the background");
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    void onAppDestroyed() {
+        isInBackground = true;
+        Log.d("MyApp", "App destroyed");
     }
 
     public static boolean isInBackground() {

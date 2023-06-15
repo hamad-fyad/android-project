@@ -25,13 +25,13 @@
             android:name=".StatisticsView"
             android:exported="false" />
         <activity
-            android:name=".ChatsActivity"
+            android:name=".CHAT.ChatsActivity"
             android:exported="false" />
         <activity
             android:name=".NotificationReceiverActivity"
             android:exported="true" />
         <activity
-            android:name=".ChatRoomActivity"
+            android:name=".CHAT.ChatRoomActivity"
             android:exported="false" />
         <activity
             android:name=".MyPostsActivity"

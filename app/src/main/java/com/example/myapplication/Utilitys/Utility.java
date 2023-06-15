@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.Utilitys;
 
 import static android.content.ContentValues.TAG;
 
@@ -9,11 +9,12 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
+import com.example.myapplication.classes.Buildings;
+import com.example.myapplication.classes.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -50,7 +51,7 @@ public class Utility {
         return locationManager.getLastKnownLocation(bestProvider);
     }
 
-    static void showToast(Context context, String message) {
+    public static void showToast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 

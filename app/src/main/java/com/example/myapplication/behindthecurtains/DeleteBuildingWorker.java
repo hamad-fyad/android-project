@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.behindthecurtains;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.myapplication.Utilitys.Utility;
+import com.example.myapplication.classes.Buildings;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class DeleteBuildingWorker extends Worker {
