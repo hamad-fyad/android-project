@@ -23,11 +23,14 @@ import com.example.myapplication.Utilitys.Utility;
 import com.example.myapplication.adapters.HouseAdapter;
 import com.example.myapplication.behindthecurtains.CheckSoldStatusWorker;
 import com.example.myapplication.classes.Buildings;
+import com.example.myapplication.classes.SearchStats;
 import com.example.myapplication.classes.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -35,12 +38,15 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
     private Button Add_Post;
     private TypoFixer typoFixer;
+    private FirebaseFirestore db=FirebaseFirestore.getInstance();
     private BottomNavigationView bottomNavigationView;
     private SwipeRefreshLayout swipeRefreshLayout;
     @Override
@@ -56,15 +62,8 @@ public class MainActivity extends AppCompatActivity {
         //here i used this because some words would have some problem and would be diffrent
 
         dictionary.addAll(Arrays.asList(
-                "address","agreement","price", "apartment","yanouh","yarka","bet jen","kermail","haifa","tel aviv",
-                "assessment", "asset","balcony", "bathroom", "bedroom", "bill", "block", "building",
-                "capital", "charge", "city", "client", "commission", "community", "contract", "cost", "county",
-                "deposit", "design", "discount", "downtown", "equity", "estate", "eviction", "excellent", "expensive",
-                "garage", "garden", "ground", "home", "house","private house","appartment","penthouse","Garden Appartment","studio",
-                "housing", "improvement", "income", "inspection", "interest",
-                "location",  "maintenance", "management", "market",
-                "neighborhood", "offer", "office", "property", "rental","villa",
-                "residential","room","service","story","street","structure","suburb","town","value","village"
+                "address","price","yanouh","yarka","beitjann" ,"kermail","haifa","tel aviv",
+                 "building","type","renting","selling"
         ));
 
         this.typoFixer = new TypoFixer(dictionary);
@@ -118,19 +117,36 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.d(TAG, "onQueryTextSubmit: "+typoFixer.fixTypos(query) );
-                searchBuildings(typoFixer.fixTypos(query));
-                return true;
+                    String fixedQuery = typoFixer.fixTypos(query.toLowerCase());
+                    Log.d(TAG, "onQueryTextSubmit: " + fixedQuery);
+
+                    // Check if the same search term has been submitted before
+                isPreviousSearchTerm(fixedQuery, exists -> {
+                    if (exists) {
+                        // Your search term exists, perform your desired operations here
+                        incrementSearchTermCount(fixedQuery);
+                    } else {
+                        // Your search term doesn't exist, perform your desired operations here
+                        addNewSearchTerm(fixedQuery);
+                    }
+                });
+
+
+                searchBuildings(fixedQuery);
+
+                    return true;
+
+
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                Log.d(TAG, "onQueryTextSubmit: "+typoFixer.fixTypos(newText) );
-                searchBuildings(typoFixer.fixTypos(newText));
+                if(newText.length() > 5){
+                    Log.d(TAG, "onQueryTextSubmit: "+typoFixer.fixTypos(newText));
+                    searchBuildings(typoFixer.fixTypos(newText));
+                }
                 return false;
             }
         });
-        // Get buildings initially without any search query
-        // getBuildings(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
         getCloseBuildings();
     }
     private void getCloseBuildings() {
@@ -145,11 +161,11 @@ public class MainActivity extends AppCompatActivity {
                 Query query = housesRef.whereEqualTo("address", address.toLowerCase().trim());
                 query.get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<Buildings> CloseBuildings = new ArrayList<>();
+                        List<Buildings> closeBuildings = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Buildings house = document.toObject(Buildings.class);
                             if (!house.isSold())
-                            CloseBuildings.add(house);
+                                closeBuildings.add(house);
                         }
                         Query query2 = housesRef.whereNotEqualTo("address", address.toLowerCase().trim());
                         query2.get().addOnCompleteListener(task1 -> {
@@ -157,10 +173,10 @@ public class MainActivity extends AppCompatActivity {
                                 for (QueryDocumentSnapshot document : task1.getResult()) {
                                     Buildings house = document.toObject(Buildings.class);
                                     if (!house.isSold())
-                                    CloseBuildings.add(house);
+                                        closeBuildings.add(house);
                                 }
-                                if (!CloseBuildings.isEmpty()) {
-                                    showBuildings(CloseBuildings);
+                                if (!closeBuildings.isEmpty()) {
+                                    showBuildings(closeBuildings);
                                 }
                             } else {
                                 Log.w(TAG, "Error getting documents.", task1.getException());
@@ -177,55 +193,90 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Error getting user data", e);
             }
         });
+
+        // Retrieve and show the top searched buildings
+        getTopSearchedBuildings();
     }
 
+    private void getTopSearchedBuildings() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference searchStatsRef = db.collection("searchStats");
+
+        // Retrieve the top 10 most searched terms
+        Query query = searchStatsRef.orderBy("count", Query.Direction.DESCENDING).limit(10);
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Buildings> topSearchedBuildings = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String address = document.getString("searchTerm");
+
+                    // Query buildings collection for each address
+                    db.collection("Buildings").whereEqualTo("address", address.toLowerCase().trim()).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            Buildings building = doc.toObject(Buildings.class);
+                            if (!building.isSold())
+                                topSearchedBuildings.add(building);
+                        }
+
+                        // This will append the top searched buildings to the close buildings
+                        showBuildings(topSearchedBuildings);
+                    }).addOnFailureListener(e -> Log.w(TAG, "Error getting buildings", e));
+                }
+            } else {
+                Log.w(TAG, "Error getting documents.", task.getException());
+            }
+        });
+    }
+
+
     private void searchBuildings(String searchText) {
+        if (searchText == null || searchText.isEmpty()) {
+            return;
+        }
+
         int maxSize = Integer.MAX_VALUE;
         int maxPrice = Integer.MAX_VALUE;
-        String address = "";
+        String address = "", typeofbuilding = "", type = "";
 
         // Trim leading and trailing whitespace and replace multiple spaces with single space
         searchText = searchText.trim().replaceAll("\\s+", " ");
-
         String[] searchTerms = searchText.split(" ");
         for (int i = 0; i < searchTerms.length - 1; i++) {
             String term = searchTerms[i].toLowerCase();
             String value = searchTerms[i + 1];
 
-            if (term.equals("size")) {
-                try {
+            switch (term) {
+                case "size":
                     value = removeChars(value);
                     maxSize = Integer.parseInt(value);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            } else if (term.equals("price")) {
-                try {
+                    break;
+                case "price":
                     value = removeChars(value);
                     maxPrice = Integer.parseInt(value);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            } else if (term.equals("address")) {
-                address = value;
+                    break;
+                case "address":
+                    address = value;
+                    break;
+                case "type":
+                    type = value;
+                    break;
             }
         }
-        getBuildings(maxPrice, maxSize, address);
+
+        getBuildings(maxPrice, maxSize, address, typeofbuilding, type);
+
     }
+
 
     private String removeChars(String str) {
         return str.replaceAll("[^\\d]", "");
     }
 
     private void getBuildings() {
-        getBuildings( Integer.MAX_VALUE, Integer.MAX_VALUE, "");
+        getBuildings( Integer.MAX_VALUE, Integer.MAX_VALUE, "","","");
     }
 
-    private void getBuildings(int maxPrice, int maxSize, String address) {
+    private void getBuildings(int maxPrice, int maxSize, String address,String typeofbuilding,String type) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference housesRef = db.collection("Buildings");
 
@@ -235,14 +286,18 @@ public class MainActivity extends AppCompatActivity {
             query = query.whereEqualTo("address", address.toLowerCase());
         }
 
+        // Add this if type is not empty
+        if (!type.isEmpty()) {
+            query = query.whereEqualTo("type", type.toLowerCase());
+        }
+
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Buildings> houses = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Buildings house = document.toObject(Buildings.class);
-
                     // Filter by size locally
-                    if (house.getSize() <= maxSize && !house.isSold()) {
+                    if(house.getSize() <= maxSize && !house.isSold()){
                         houses.add(house);
                     }
                 }
@@ -253,6 +308,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private void showBuildings(List<Buildings> buildings) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         HouseAdapter houseAdapter = new HouseAdapter(buildings);
@@ -260,5 +316,59 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
     }
 
+    private void isPreviousSearchTerm(String searchTerm, OnSearchTermCheckListener listener) {
+        // Check if the search term exists in the searchStats collection
+        Query query = db.collection("searchStats").whereEqualTo("searchTerm", searchTerm);
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                listener.onComplete(true);
+            } else {
+                listener.onComplete(false);
+            }
+        });
+    }
+
+    // You'll need to define this interface somewhere in your code
+    public interface OnSearchTermCheckListener {
+        void onComplete(boolean exists);
+    }
+
+
+
+    private void incrementSearchTermCount(String searchTerm) {
+        // Get the document reference for the existing search term
+        db.collection("searchStats")
+                .whereEqualTo("searchTerm", searchTerm)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                        String documentId = documentSnapshot.getId();
+                        long count = documentSnapshot.getLong("count");
+
+                        // Increment the count of the existing search term by 1
+                        db.collection("searchStats")
+                                .document(documentId)
+                                .update("count", count + 1)
+                                .addOnSuccessListener(aVoid -> Log.d(TAG, "Search term count incremented"))
+                                .addOnFailureListener(e -> Log.w(TAG, "Error incrementing search term count", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Error retrieving search term document", e));
+    }
+
+    private void addNewSearchTerm(String searchTerm) {
+        // Assume you have user ID here, get it from current logged-in user
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        long timestamp = System.currentTimeMillis() / 1000;
+
+        SearchStats stats = new SearchStats(userId, searchTerm, timestamp, 1);
+
+        db.collection("searchStats")
+                .add(stats)
+                .addOnSuccessListener(documentReference -> Log.d(TAG, "New search term added"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error adding new search term", e));
+    }
 
 }

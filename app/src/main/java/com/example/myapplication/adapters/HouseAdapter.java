@@ -50,11 +50,11 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
             if (documentSnapshot.exists()) {
                 String email = documentSnapshot.getString("email");
                 String number = documentSnapshot.getString("number");
-                String buildingDetails = "Address: " + building.getAddress() + "\n" +
-                        building.getTypeofbuilding() + "\nPrice: " +
+                String buildingDetails = "Address: " + building.getAddress()  +
+                         "\nPrice: " +
                         building.getPrice() + " $\n" +
                         "Size: " + building.getSize()+ " m\n" +
-                        (building.getType().equals("Selling") ? "for sale\n" : "for rent\n")+
+                        (building.getType().equals("selling") ? "Selling\n" : "Renting\n")+
                         email + "\n" + number;
 
                 holder.textViewDetails.setText(buildingDetails);

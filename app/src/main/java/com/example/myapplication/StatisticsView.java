@@ -6,7 +6,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.myapplication.classes.SearchStats;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.formatter.ValueFormatter;
@@ -21,21 +24,30 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Calendar;
+import java.util.Map;
 
 // TODO: 15/06/2023 make it show in the charts 
 public class StatisticsView extends AppCompatActivity {
 
     private BarChart chart;
+    private FirebaseFirestore db=FirebaseFirestore.getInstance();
+    private Map<String, Long> searchCounts = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,174 +63,86 @@ public class StatisticsView extends AppCompatActivity {
         chart.setDrawGridBackground(true);
         chart.getDescription().setEnabled(false); // Disable chart description
 
-        showAverageSellTimeGraph();
+        db = FirebaseFirestore.getInstance();
+        getSearchStats();
     }
 
-    public void showAverageSellTimeGraph() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        CollectionReference buildingsRef = db.collection("Buildings");
+    private void getSearchStats() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Get current user's id
 
-        Query query = buildingsRef.whereEqualTo("sold", true).whereEqualTo("useruid", userId);
+        db.collection("searchStats")
+                .whereEqualTo("userId", userId) // Filter documents by userId
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            SearchStats stat = document.toObject(SearchStats.class);
 
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<DocumentSnapshot> documents = task.getResult().getDocuments();
-                if (documents.isEmpty()) {
-                    Log.d(TAG, "No sold buildings found.");
-                } else {
-                    List<Date> sellDates = new ArrayList<>();
-                    List<Date> postCreatedDates = new ArrayList<>();
-
-                    for (DocumentSnapshot document : documents) {
-                        Date sellDate = document.getDate("sellDate");
-                        Date postCreatedDate = document.getDate("postCreatedDate");
-                        if (sellDate != null && postCreatedDate != null) {
-                            sellDates.add(sellDate);
-                            postCreatedDates.add(postCreatedDate);
+                            // Check if search term and count is not null
+                            if (stat.getSearchTerm() != null && stat.getCount()!=0) {
+                                // Insert or update the count for the search term in searchCounts map
+                                searchCounts.put(stat.getSearchTerm(), stat.getCount());
+                            }
                         }
+
+                        // Display the search stats in the chart
+                        displaySearchStats();
+                    } else {
+                        Log.w(TAG, "Error getting documents.", task.getException());
                     }
-
-                    // Calculate average sell time for each month from the day the post was created
-                    List<Float> avgSellTimes = calculateAverageSellTimes(sellDates, postCreatedDates);
-
-                    // Create chart entries
-                    List<BarEntry> entries = new ArrayList<>();
-                    for (int i = 0; i < avgSellTimes.size(); i++) {
-                        float avgSellTime = avgSellTimes.get(i);
-                        entries.add(new BarEntry(i, avgSellTime));
-                    }
-
-                    BarDataSet dataSet = new BarDataSet(entries, "Average Sell Time");
-                    dataSet.setColors(ColorTemplate.COLORFUL_COLORS); // Set custom colors
-                    dataSet.setDrawValues(true); // Show values on top of bars
-
-                    BarData barData = new BarData(dataSet);
-                    barData.setValueTextSize(10f);
-                    barData.setBarWidth(0.9f); // set custom bar width
-
-                    chart.setData(barData);
-                    chart.setFitBars(true); // make the x-axis fit exactly all bars
-                    chart.invalidate(); // Refresh chart
-
-                    // Set X-axis labels
-                    String[] months = getMonthNames();
-                    XAxis xAxis = chart.getXAxis();
-                    xAxis.setValueFormatter(new IndexAxisValueFormatter(months));
-                    xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                    xAxis.setGranularity(1f); // Set the minimum interval for the X-axis labels
-                    xAxis.setCenterAxisLabels(true);
-                    xAxis.setAxisMinimum(0f);
-                    xAxis.setAxisMaximum(0 + chart.getBarData().getGroupWidth(0.4f, 0.02f) * 12);
-                    xAxis.setTextColor(Color.BLACK);
-                    xAxis.setTextSize(10f);
-
-                    // Set Y-axis properties
-                    YAxis yAxis = chart.getAxisLeft();
-                    yAxis.setAxisMinimum(0f); // Set the minimum value
-                    yAxis.setTextColor(Color.BLACK);
-                    yAxis.setTextSize(10f);
-                    chart.getAxisRight().setEnabled(false);
-
-                    // Customize legend
-                    Legend l = chart.getLegend();
-                    l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-                    l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-                    l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-                    l.setDrawInside(true);
-                    l.setYOffset(0f);
-                    l.setXOffset(10f);
-                    l.setYEntrySpace(0f);
-                    l.setTextSize(8f);
-
-                }
-            } else {
-                Log.w(TAG, "Error getting sold buildings.", task.getException());
-            }
-        });
+                });
     }
 
-
-
-    private List<Float> calculateAverageSellTimes(List<Date> sellDates, List<Date> postCreatedDates) {
-        List<Float> avgSellTimes = new ArrayList<>();
-
-        // Group sell dates and post created dates by month
-        List<List<Date>> sellDatesByMonth = groupDatesByMonth(sellDates);
-        List<List<Date>> postCreatedDatesByMonth = groupDatesByMonth(postCreatedDates);
-
-        // Calculate average sell time for each month
-        long sellTimeSum = 0;
-        int totalCount = 0;
-
-        int numMonths = Math.min(sellDatesByMonth.size(), postCreatedDatesByMonth.size());
-
-        for (int i = 0; i < numMonths; i++) {
-            List<Date> sellDatesOfMonth = sellDatesByMonth.get(i);
-            List<Date> postCreatedDatesOfMonth = postCreatedDatesByMonth.get(i);
-
-            if (sellDatesOfMonth.isEmpty() || postCreatedDatesOfMonth.isEmpty()) {
-                avgSellTimes.add(0f);// no data for this month, so the average is 0
-                continue;
-            }
-
-            long sellTimeOfMonth = calculateTotalSellTime(sellDatesOfMonth, postCreatedDatesOfMonth);
-            sellTimeSum += sellTimeOfMonth;
-
-            totalCount += sellDatesOfMonth.size();
-
-            float avgSellTime = (float) sellTimeSum / totalCount;
-            avgSellTimes.add((float) totalCount);
-        }
-
-        return avgSellTimes;
-    }
-
-
-    private List<List<Date>> groupDatesByMonth(List<Date> dates) {
-        List<List<Date>> datesByMonth = new ArrayList<>();
-
-        // Initialize the list with 12 empty lists for each month
-        for (int i = 1; i <= 12; i++) {
-            datesByMonth.add(new ArrayList<>());
-        }
-
-        for (Date date : dates) {
-            int month = getMonthFromDate(date);
-            datesByMonth.get(month).add(date);
-        }
-        return datesByMonth;
-    }
-
-
-    private int getMonthFromDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.get(Calendar.MONTH);
-    }
-
-    private long calculateTotalSellTime(List<Date> sellDates, List<Date> postCreatedDates) {
-        long sellTimeSum = 0;
-        for (int i = 0; i < sellDates.size(); i++) {
-            Date sellDate = sellDates.get(i);
-            Date postCreatedDate = postCreatedDates.get(i);
-            long sellTime = sellDate.getTime() - postCreatedDate.getTime();
-            sellTimeSum += sellTime;
-        }
-        return sellTimeSum;
-    }
-
-    private String[] getMonthNames() {
-        String[] fullMonthNames = new DateFormatSymbols().getMonths();
-        String[] shortMonthNames = new String[fullMonthNames.length];
-        for (int i = 0; i < fullMonthNames.length; i++) {
-            if (fullMonthNames[i].length() >= 3) {
-                shortMonthNames[i] = fullMonthNames[i].substring(0, 3);
-            } else {
-                shortMonthNames[i] = fullMonthNames[i];
+    private void displaySearchStats() {
+        List<String> searchTerms = new ArrayList<>();
+        List<BarEntry> entries = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : searchCounts.entrySet()) {
+            if (entry.getKey() != null && entry.getValue() != null) { // Check if key and value are not null
+                searchTerms.add(entry.getKey());
+                entries.add(new BarEntry(searchTerms.size() - 1, entry.getValue()));
             }
         }
-        return shortMonthNames;
+
+
+        BarDataSet dataSet = new BarDataSet(entries, "Search Counts");
+        dataSet.setColors(getDefaultColors()); // Set custom colors
+        dataSet.setDrawValues(true); // Show values on top of bars
+
+        BarData barData = new BarData(dataSet);
+        barData.setValueTextSize(10f);
+        barData.setBarWidth(0.9f); // set custom bar width
+
+        chart.setData(barData);
+        chart.setFitBars(true); // make the x-axis fit exactly all bars
+        chart.invalidate(); // Refresh chart
+
+        // Set X-axis labels
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(searchTerms));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f); // Set the minimum interval for the X-axis labels
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setAxisMinimum(0f);
+        xAxis.setTextColor(Color.BLACK);
+        xAxis.setTextSize(10f);
+
+        // Set Y-axis properties
+        YAxis yAxis = chart.getAxisLeft();
+        yAxis.setAxisMinimum(0f); // Set the minimum value
+        yAxis.setTextColor(Color.BLACK);
+        yAxis.setTextSize(10f);
+        chart.getAxisRight().setEnabled(false);
+
+        // Customize legend
+        Legend l = chart.getLegend();
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        l.setDrawInside(true);
+        l.setYOffset(0f);
+        l.setXOffset(10f);
+        l.setYEntrySpace(0f);
+        l.setTextSize(8f);
     }
 
     private List<Integer> getDefaultColors() {
@@ -226,6 +150,19 @@ public class StatisticsView extends AppCompatActivity {
         colors.add(Color.parseColor("#FF5722")); // Example color 1
         colors.add(Color.parseColor("#E91E63")); // Example color 2
         colors.add(Color.parseColor("#3F51B5")); // Example color 3
+        colors.add(Color.parseColor("#3F51B5"));
+        colors.add(Color.parseColor("#3341B5"));
+        colors.add(Color.parseColor("#AF51B5"));
+        colors.add(Color.parseColor("#BF21B5"));
+        colors.add(Color.parseColor("#3F31B5"));
+        colors.add(Color.parseColor("#DF54B5"));
+        colors.add(Color.parseColor("#3F51B5"));
+        colors.add(Color.parseColor("#FF91A5"));
+        colors.add(Color.parseColor("#AA51B5"));
+
+
+
+
         // Add more colors as needed
         return colors;
     }

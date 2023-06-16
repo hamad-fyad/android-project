@@ -87,16 +87,6 @@
             android:layout_marginTop="5dp"
             />
 
-        <Spinner
-            android:id="@+id/spinner_type_of_buildings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/rounded_corner"
-            android:minHeight="48dp"
-            android:padding="16dp"
-            android:contentDescription="add building type"
-            android:spinnerMode="dropdown" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -115,7 +105,7 @@
                     android:id="@+id/radio_rental"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Rental"
+                    android:text="renting"
                     android:textSize="22sp"
                     android:layout_marginRight="12dp"/>
 
@@ -123,7 +113,7 @@
                     android:id="@+id/radio_selling"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Selling"
+                    android:text="selling"
                     android:textSize="22sp"
                     android:layout_marginLeft="12dp"/>
             </RadioGroup>

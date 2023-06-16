@@ -4,14 +4,12 @@ import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -35,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddBuildingActivity extends AppCompatActivity {
     private LinearLayout imageContainer;
-    private Spinner typeofbuilding;
     private EditText Address, price, size;
     private ActivityResultLauncher<String> multipleImagePickerLauncher;
     private List<Uri> selectedImagesUris;
@@ -53,11 +50,6 @@ public class AddBuildingActivity extends AppCompatActivity {
         Address = findViewById(R.id.address);
         price = findViewById(R.id.price);
         size = findViewById(R.id.size);
-        typeofbuilding = findViewById(R.id.spinner_type_of_buildings);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.building_types_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        typeofbuilding.setAdapter(adapter);
          radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         if (!PermissionUtils.hasReadStoragePermission(this)) {
             PermissionUtils.requestReadStoragePermission(this);
@@ -134,7 +126,7 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
         if (radioButton != null) {
             String selectedOption = radioButton.getText().toString().trim();
 
-            if (isEmpty(Address.getText()) || isEmpty(price.getText()) || isEmpty(size.getText()) || isEmpty(typeofbuilding.getSelectedItem().toString().trim()) || selectedImagesUris.size() == 0) {
+            if (isEmpty(Address.getText()) || isEmpty(price.getText()) || isEmpty(size.getText()) ||  selectedImagesUris.size() == 0) {
                 Utility.showToast(this, "Please fill in all fields");
                 return;
             }
@@ -153,7 +145,6 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
                         String address = Address.getText().toString().toLowerCase().trim();
                         double buildingPrice = Double.parseDouble(price.getText().toString());
                         double buildingSize = Double.parseDouble(size.getText().toString());
-                        String Typeofbuilding=typeofbuilding.getSelectedItem().toString().trim();
                         Address.setText("");
                         price.setText("");
                         size.setText("");
@@ -169,11 +160,12 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
                             // Get the UID of the new document
                             String buildingUid = newBuildingRef.getId();
                             //we needed to add the uid so we only
-                            Buildings building = new Buildings(address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption,Typeofbuilding);
+                            Buildings building = new Buildings(address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption.toLowerCase());
 
                             // Save the Building object to the Firestore database using the generated document reference
                             newBuildingRef.set(building)
                                     .addOnSuccessListener(aVoid -> {
+
                                         Utility.showToast(this, "Building added successfully");
                                         startActivity(new Intent(AddBuildingActivity.this, MainActivity.class));
                                     })

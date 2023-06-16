@@ -1,15 +1,14 @@
 package com.example.myapplication.Utilitys;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TypoFixer {
     private List<String> dictionary;
+    private Map<List<String>, Integer> distanceCache;
 
     public TypoFixer(List<String> dictionary) {
         this.dictionary = new ArrayList<>(dictionary);
+        this.distanceCache = new HashMap<>();
     }
 
     public String fixTypos(String text) {
@@ -17,7 +16,9 @@ public class TypoFixer {
         List<String> correctedWords = new ArrayList<>();
 
         for (String word : words) {
-            if (!dictionary.contains(word.toLowerCase())) {
+            if (word.matches("-?\\d+(\\.\\d+)?")) {
+                correctedWords.add(word);
+            } else if (!dictionary.contains(word.toLowerCase())) {
                 String suggestedCorrection = getCorrection(word);
                 correctedWords.add(suggestedCorrection);
             } else {
@@ -31,7 +32,6 @@ public class TypoFixer {
     private String getCorrection(String word) {
         String suggestedCorrection = word;
         int minDistance = Integer.MAX_VALUE;
-        //here we check every word until we find the best one using the min amount of times to change a word
         for (String dictWord : dictionary) {
             int distance = calculateLevenshteinDistance(word, dictWord);
             if (distance < minDistance) {
@@ -42,8 +42,13 @@ public class TypoFixer {
 
         return suggestedCorrection;
     }
-    // in this algo we check the min amount to change a string with another with insertions, deletions, and substitutions and that's
+
     private int calculateLevenshteinDistance(String word1, String word2) {
+        // Use previously calculated value if available
+        if (distanceCache.containsKey(Arrays.asList(word1, word2))) {
+            return distanceCache.get(Arrays.asList(word1, word2));
+        }
+
         int m = word1.length();
         int n = word2.length();
         int[][] dp = new int[m + 1][n + 1];
@@ -62,6 +67,9 @@ public class TypoFixer {
                 }
             }
         }
+
+        // Store result in cache
+        distanceCache.put(Arrays.asList(word1, word2), dp[m][n]);
 
         return dp[m][n];
     }

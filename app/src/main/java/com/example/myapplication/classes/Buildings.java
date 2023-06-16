@@ -11,18 +11,17 @@ import java.util.Random;
 
 public class Buildings  {
     private double Size;
-    private String useruid,typeofbuilding,type;
+    private String useruid,type;
     private ArrayList<String> picture;
     private String Address;
     private double Price;
     private int number;
-    private int view;
     private String Uid;
     private Date postCreatedDate,sellDate;
     private boolean isSold;
     public Buildings() {}
-    public Buildings( String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption, String typeofbuilding) {
-        this.view=0;
+    public Buildings( String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption) {
+
         this.picture = imageUrls;
         this.Uid = buildingUid;
         this.Address = address;
@@ -32,20 +31,14 @@ public class Buildings  {
         Random random = new Random();
         this.number = random.nextInt();
         this.type = selectedOption;
-        this.typeofbuilding = typeofbuilding;
         this.postCreatedDate = new Date();
-        this.view=0;
         this.sellDate=null;
         this.isSold=false;
     }
 
-    public int getView() {
-        return view;
-    }
 
-    public void setView(int view) {
-        this.view = view;
-    }
+
+
 
     public Date getSellDate() {
         return sellDate;
@@ -55,13 +48,7 @@ public class Buildings  {
         this.sellDate = sellDate;
     }
 
-    public String getTypeofbuilding() {
-        return typeofbuilding;
-    }
 
-    public void setTypeofbuilding(String typeofbuilding) {
-        this.typeofbuilding = typeofbuilding;
-    }
 
     public String getType() {
         return type;

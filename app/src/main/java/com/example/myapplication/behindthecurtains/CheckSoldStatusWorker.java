@@ -84,7 +84,7 @@ public class CheckSoldStatusWorker extends Worker {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Check Sold Status")
-                .setContentText("Your post for " + building.getTypeofbuilding() + " has been published for 3 months. Is it sold?\n"+"the building will be deleted in week if you don't respond")
+                .setContentText("Your post for " + building.getAddress() + " has been published for 3 months. Is it sold?\n"+"the building will be deleted in week if you don't respond")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(resultPendingIntent);

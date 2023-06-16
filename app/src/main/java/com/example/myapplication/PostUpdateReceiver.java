@@ -22,14 +22,14 @@ public class PostUpdateReceiver extends BroadcastReceiver {
         String action = intent.getStringExtra("action");
 
         if (action.equals("sold")) {
-            updateStatisticsAndDeleteBuilding(buildingId);
+            updateStatisticsAndMarkBuildingAsSold(buildingId);
         } else if (action.equals("notSold")) {
             // TODO: handle "notSold" action
 
         }
     }
 
-    private void updateStatisticsAndDeleteBuilding(String buildingId) {
+    private void updateStatisticsAndMarkBuildingAsSold(String buildingId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DocumentReference userRef = db.collection("Users").document(userId);
@@ -56,21 +56,22 @@ public class PostUpdateReceiver extends BroadcastReceiver {
                     "soldCount", soldCount
             ).addOnSuccessListener(aVoid -> {
                 Log.d("PostUpdateReceiver", "Statistics successfully updated!");
-                deleteBuilding(buildingId);
+                markBuildingAsSold(buildingId); // Updating the building's sold status
             }).addOnFailureListener(e -> Log.w("PostUpdateReceiver", "Error updating statistics", e));
         }).addOnFailureListener(e -> Log.w("PostUpdateReceiver", "Error getting documents", e));
     }
 
-    private void deleteBuilding(String buildingId) {
+    private void markBuildingAsSold(String buildingId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Buildings").document(buildingId)
-                .delete()
+                .update("sold", true)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("PostUpdateReceiver", "DocumentSnapshot successfully deleted!");
+                    Log.d("PostUpdateReceiver", "Building successfully marked as sold!");
                     decrementUserCount(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 })
-                .addOnFailureListener(e -> Log.w("PostUpdateReceiver", "Error deleting document", e));
+                .addOnFailureListener(e -> Log.w("PostUpdateReceiver", "Error marking building as sold", e));
     }
+
 
     private void decrementUserCount(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

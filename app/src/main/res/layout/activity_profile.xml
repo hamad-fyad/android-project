@@ -192,7 +192,7 @@
                 android:id="@+id/statistics"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="statistics"
+                android:text="you're searches"
                 android:layout_marginLeft="5dp"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="159dp"
