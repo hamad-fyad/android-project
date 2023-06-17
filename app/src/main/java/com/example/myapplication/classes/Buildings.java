@@ -4,6 +4,8 @@ package com.example.myapplication.classes;
 import android.content.Context;
 import android.location.Location;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 
 import java.util.Date;
@@ -49,6 +51,12 @@ public class Buildings  {
     }
 
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj!=null)
+        return this.Uid.equals(((Buildings)obj).getUid());
+        return false;
+    }
 
     public String getType() {
         return type;

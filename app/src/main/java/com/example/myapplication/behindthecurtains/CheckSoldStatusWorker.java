@@ -37,7 +37,6 @@ public class CheckSoldStatusWorker extends Worker {
         return Result.success();
     }
     private void checkPostsDaily() {
-        Log.d(TAG, "scheduleBuildingDeletion: byeeeeeeeeeee");
         Calendar threeMonthsAgo = Calendar.getInstance();
         threeMonthsAgo.add(Calendar.MONTH, -3);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -93,8 +92,6 @@ public class CheckSoldStatusWorker extends Worker {
     }
     private void scheduleBuildingDeletion(String buildingUid) {
         // Schedule deletion in 1 week
-        Log.d(TAG, "scheduleBuildingDeletion: byeeeeeeeeeee");
-
         OneTimeWorkRequest deletionRequest = new OneTimeWorkRequest.Builder(DeleteBuildingWorker.class)
                 .setInputData(new Data.Builder().putString("building_uid", buildingUid).build())
                 .setInitialDelay(7, TimeUnit.DAYS)

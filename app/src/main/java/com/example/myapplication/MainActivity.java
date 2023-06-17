@@ -30,6 +30,7 @@ import com.google.android.material.navigation.NavigationBarView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -42,6 +43,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// TODO: 16/06/2023 make it locally the search  
 public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
     private Button Add_Post;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db=FirebaseFirestore.getInstance();
     private BottomNavigationView bottomNavigationView;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private List<Buildings> posts=new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,10 +62,8 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.browsing);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         List<String> dictionary = new ArrayList<>();
-        //here i used this because some words would have some problem and would be diffrent
-
         dictionary.addAll(Arrays.asList(
-                "address","price","yanouh","yarka","beitjann" ,"kermail","haifa","tel aviv",
+                "address","price","yanouh","yarka","beitjann" ,"carmeil","haifa","tel aviv",
                  "building","type","renting","selling"
         ));
 
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 // Refresh your data here...
-                getCloseBuildings();
+                getTopSearchedBuildings();
                 // This will hide the refresh indicator
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -117,6 +118,9 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                if (query.isEmpty()){
+                    getCloseBuildings();
+                }
                     String fixedQuery = typoFixer.fixTypos(query.toLowerCase());
                     Log.d(TAG, "onQueryTextSubmit: " + fixedQuery);
 
@@ -130,13 +134,8 @@ public class MainActivity extends AppCompatActivity {
                         addNewSearchTerm(fixedQuery);
                     }
                 });
-
-
                 searchBuildings(fixedQuery);
-
                     return true;
-
-
             }
             @Override
             public boolean onQueryTextChange(String newText) {
@@ -147,7 +146,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-        getCloseBuildings();
+        getTopSearchedBuildings();
+
     }
     private void getCloseBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -209,26 +209,17 @@ public class MainActivity extends AppCompatActivity {
                 List<Buildings> topSearchedBuildings = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     String address = document.getString("searchTerm");
+                    Log.d(TAG, "getTopSearchedBuildings: "+address);
 
-                    // Query buildings collection for each address
-                    db.collection("Buildings").whereEqualTo("address", address.toLowerCase().trim()).get().addOnSuccessListener(queryDocumentSnapshots -> {
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Buildings building = doc.toObject(Buildings.class);
-                            if (!building.isSold())
-                                topSearchedBuildings.add(building);
-                        }
+                    searchBuildings(address);
 
-                        // This will append the top searched buildings to the close buildings
-                        showBuildings(topSearchedBuildings);
-                    }).addOnFailureListener(e -> Log.w(TAG, "Error getting buildings", e));
+
                 }
             } else {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
         });
     }
-
-
     private void searchBuildings(String searchText) {
         if (searchText == null || searchText.isEmpty()) {
             return;
@@ -262,35 +253,28 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-
         getBuildings(maxPrice, maxSize, address, typeofbuilding, type);
-
     }
-
-
     private String removeChars(String str) {
         return str.replaceAll("[^\\d]", "");
     }
-
     private void getBuildings() {
         getBuildings( Integer.MAX_VALUE, Integer.MAX_VALUE, "","","");
     }
-
     private void getBuildings(int maxPrice, int maxSize, String address,String typeofbuilding,String type) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference housesRef = db.collection("Buildings");
-
         Query query = housesRef.whereLessThanOrEqualTo("price", maxPrice);
-
         if (!address.isEmpty()) {
             query = query.whereEqualTo("address", address.toLowerCase());
         }
-
-        // Add this if type is not empty
         if (!type.isEmpty()) {
             query = query.whereEqualTo("type", type.toLowerCase());
         }
-
+        //maybe add ask shady
+//        if(!typeofbuilding.isEmpty()){
+//            query=query.whereEqualTo("typeofbuilding",typeofbuilding.trim().toLowerCase());
+//        }
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Buildings> houses = new ArrayList<>();
@@ -301,8 +285,33 @@ public class MainActivity extends AppCompatActivity {
                         houses.add(house);
                     }
                 }
-                showBuildings(houses);
+                posts=houses;if(posts.size()>0){
+                    getRestoftheBuildings(posts);
+                    Log.d(TAG, "getBuildings: "+posts.size());
+                }else {
+                    getCloseBuildings();
+                }
+
             } else {
+                Log.w(TAG, "Error getting documents.", task.getException());
+            }
+        });
+    }
+
+    private void getRestoftheBuildings(List<Buildings> posts) {
+        db.collection("Buildings").get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Buildings house = document.toObject(Buildings.class);
+                    if(!posts.contains(house)&&!house.isSold()){
+                        posts.add(house);
+                    }
+                    }
+                Log.d(TAG, "getRestoftheBuildings: "+posts.size());
+                Log.d(TAG, "getRestoftheBuildings: "+posts.get(0).getAddress());
+                showBuildings(posts);
+            }
+            else {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
         });
