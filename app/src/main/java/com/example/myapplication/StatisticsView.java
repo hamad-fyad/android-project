@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.classes.SearchStats;
+import com.example.myapplication.classes.User;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.formatter.ValueFormatter;
@@ -42,69 +43,60 @@ import java.util.List;
 import java.util.Calendar;
 import java.util.Map;
 
-// TODO: 15/06/2023 make it show in the charts 
 public class StatisticsView extends AppCompatActivity {
 
     private BarChart chart;
     private FirebaseFirestore db=FirebaseFirestore.getInstance();
-    private Map<String, Long> searchCounts = new HashMap<>();
-
+    private long SellTimeSum,SoldCount;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statisticsview);
 
         chart = findViewById(R.id.chart);
+
+        getAvgTime();
+    }
+    private void getAvgTime() {
+      Utility.getUser(new Utility.UserCallback() {
+          @Override
+          public void onUserReceived(User user) {
+              SellTimeSum=user.getSellTimeSum();
+              SoldCount=user.getSoldCount();
+              displaySearchStats();
+          }
+
+          @Override
+          public void onError(Exception e) {
+              Log.d(TAG, "onError: error getting the document ");
+          }
+      });
+    }
+
+    private void displaySearchStats() {
+        // Calculate average sell time
         // Set chart properties
+
+        float avgSellTime=0;
+        if (SoldCount!=0 && SellTimeSum!=0) {
+            avgSellTime = (float) SellTimeSum / SoldCount;
+        }else {
+            Utility.showToast(this,"you haven't sold anything yet");
+            return;
+        }
         chart.setDrawBarShadow(false);
         chart.setDrawValueAboveBar(true);
         chart.setMaxVisibleValueCount(50);
         chart.setPinchZoom(false);
         chart.setDrawGridBackground(true);
         chart.getDescription().setEnabled(false); // Disable chart description
-
-        db = FirebaseFirestore.getInstance();
-        getSearchStats();
-    }
-
-    private void getSearchStats() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Get current user's id
-
-        db.collection("searchStats")
-                .whereEqualTo("userId", userId) // Filter documents by userId
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            SearchStats stat = document.toObject(SearchStats.class);
-
-                            // Check if search term and count is not null
-                            if (stat.getSearchTerm() != null && stat.getCount()!=0) {
-                                // Insert or update the count for the search term in searchCounts map
-                                searchCounts.put(stat.getSearchTerm(), stat.getCount());
-                            }
-                        }
-
-                        // Display the search stats in the chart
-                        displaySearchStats();
-                    } else {
-                        Log.w(TAG, "Error getting documents.", task.getException());
-                    }
-                });
-    }
-
-    private void displaySearchStats() {
-        List<String> searchTerms = new ArrayList<>();
+        // Create a list of bar entries
         List<BarEntry> entries = new ArrayList<>();
-        for (Map.Entry<String, Long> entry : searchCounts.entrySet()) {
-            if (entry.getKey() != null && entry.getValue() != null) { // Check if key and value are not null
-                searchTerms.add(entry.getKey());
-                entries.add(new BarEntry(searchTerms.size() - 1, entry.getValue()));
-            }
-        }
+        entries.add(new BarEntry(0, SoldCount)); // Entry for SoldCount
+        entries.add(new BarEntry(1, avgSellTime)); // Entry for avgSellTime
 
-
-        BarDataSet dataSet = new BarDataSet(entries, "Search Counts");
+        // Create a BarDataSet with entries
+        BarDataSet dataSet = new BarDataSet(entries, "");
         dataSet.setColors(getDefaultColors()); // Set custom colors
         dataSet.setDrawValues(true); // Show values on top of bars
 
@@ -117,8 +109,9 @@ public class StatisticsView extends AppCompatActivity {
         chart.invalidate(); // Refresh chart
 
         // Set X-axis labels
+        String[] labels = new String[]{"Sold Count", "Average Sell Time"};
         XAxis xAxis = chart.getXAxis();
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(searchTerms));
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f); // Set the minimum interval for the X-axis labels
         xAxis.setCenterAxisLabels(true);
@@ -128,7 +121,7 @@ public class StatisticsView extends AppCompatActivity {
 
         // Set Y-axis properties
         YAxis yAxis = chart.getAxisLeft();
-        yAxis.setAxisMinimum(0f); // Set the minimum value
+        yAxis.setAxisMinimum(0f);
         yAxis.setTextColor(Color.BLACK);
         yAxis.setTextSize(10f);
         chart.getAxisRight().setEnabled(false);
@@ -147,9 +140,9 @@ public class StatisticsView extends AppCompatActivity {
 
     private List<Integer> getDefaultColors() {
         List<Integer> colors = new ArrayList<>();
-        colors.add(Color.parseColor("#FF5722")); // Example color 1
-        colors.add(Color.parseColor("#E91E63")); // Example color 2
-        colors.add(Color.parseColor("#3F51B5")); // Example color 3
+        colors.add(Color.parseColor("#FF5722"));
+        colors.add(Color.parseColor("#E91E63"));
+        colors.add(Color.parseColor("#3F51B5"));
         colors.add(Color.parseColor("#3F51B5"));
         colors.add(Color.parseColor("#3341B5"));
         colors.add(Color.parseColor("#AF51B5"));
@@ -159,11 +152,6 @@ public class StatisticsView extends AppCompatActivity {
         colors.add(Color.parseColor("#3F51B5"));
         colors.add(Color.parseColor("#FF91A5"));
         colors.add(Color.parseColor("#AA51B5"));
-
-
-
-
-        // Add more colors as needed
         return colors;
     }
 }

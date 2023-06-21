@@ -12,23 +12,7 @@ public class User {
     private long sellTimeSum;
     private long soldCount;
 
-
-
-    public User(String name, String address, String email, String number, String photoURL, long buildingcount, boolean lookingforwork, double longitude, double latitude, boolean lookingforservice, String uid,long sellTimeSum,long soldCount) {
-        this.name=name;
-        this.address=address;
-        this.email=email;
-        this.number=number;
-        this.photoURL=photoURL;
-        this.buildingcount=buildingcount;
-        this.lookingForWork=lookingforwork;
-        this.longitude=longitude;
-        this.latitude=latitude;
-        this.lookingforservice=lookingforservice;
-        this.uid=uid;
-        this.sellTimeSum=sellTimeSum;
-        this.soldCount=soldCount;
-    }
+    public User(){}
 
     public User(String name, String address, String email, String number, String uid) {
         this.name = name;
@@ -64,7 +48,7 @@ public class User {
     public void setLookingforservice(boolean lookingforservice) {
         this.lookingforservice = lookingforservice;
     }
-    public User(){}
+
     public void setPhoto(String photo) {
         this.photoURL = photo;
     }

@@ -14,18 +14,17 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-// TODO: 13/06/2023 see where the action intent  
 public class PostUpdateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        //this comes from the PostUpdatesR
         String buildingId = intent.getStringExtra("buildingId");
         String action = intent.getStringExtra("action");
 
         if (action.equals("sold")) {
             updateStatisticsAndMarkBuildingAsSold(buildingId);
         } else if (action.equals("notSold")) {
-            // TODO: handle "notSold" action
-
+                //add what ever 
         }
     }
 

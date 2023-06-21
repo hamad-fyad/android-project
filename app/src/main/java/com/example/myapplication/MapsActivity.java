@@ -34,11 +34,8 @@ import com.google.firebase.firestore.Query;
 
 import java.util.HashMap;
 import java.util.Map;
-// TODO: 16/06/2023 fix the map code in whatsapp 
-
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
-    private ActivityMapsBinding binding;
     private Circle circle;
     private  Location location1;
 

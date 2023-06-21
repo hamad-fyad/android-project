@@ -29,6 +29,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -43,7 +44,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// TODO: 16/06/2023 make it locally the search  
 public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
     private Button Add_Post;
@@ -142,7 +142,10 @@ public class MainActivity extends AppCompatActivity {
                 if(newText.length() > 5){
                     Log.d(TAG, "onQueryTextSubmit: "+typoFixer.fixTypos(newText));
                     searchBuildings(typoFixer.fixTypos(newText));
+                }else if (newText.isEmpty()) {
+                    getTopSearchedBuildings();
                 }
+
                 return false;
             }
         });
@@ -201,25 +204,36 @@ public class MainActivity extends AppCompatActivity {
     private void getTopSearchedBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference searchStatsRef = db.collection("searchStats");
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        posts.clear();
+        showBuildings(posts);
+        Log.d(TAG, "getTopSearchedBuildings: "+posts.size());
+        if (currentUser != null) {
+            // Retrieve the top 10 most searched terms
+            //i dont know why but here i had to use ascending for the top search
+            Query query = searchStatsRef
+                    .whereEqualTo("userId", currentUser.getUid())
+                    .orderBy("count", Query.Direction.DESCENDING)
+                    .limit(10);
 
-        // Retrieve the top 10 most searched terms
-        Query query = searchStatsRef.orderBy("count", Query.Direction.DESCENDING).limit(10);
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<Buildings> topSearchedBuildings = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    String address = document.getString("searchTerm");
-                    Log.d(TAG, "getTopSearchedBuildings: "+address);
+            query.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    List<Buildings> topSearchedBuildings = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String search = document.getString("searchTerm");
+                        Log.d(TAG, "getTopSearchedBuildings: "+search);
 
-                    searchBuildings(address);
-
-
+                        searchBuildings(search);
+                    }
+                } else {
+                    Log.w(TAG, "Error getting documents.", task.getException());
                 }
-            } else {
-                Log.w(TAG, "Error getting documents.", task.getException());
-            }
-        });
+            });
+        } else {
+            Log.w(TAG, "Error: user not signed in.");
+        }
     }
+
     private void searchBuildings(String searchText) {
         if (searchText == null || searchText.isEmpty()) {
             return;
@@ -271,10 +285,6 @@ public class MainActivity extends AppCompatActivity {
         if (!type.isEmpty()) {
             query = query.whereEqualTo("type", type.toLowerCase());
         }
-        //maybe add ask shady
-//        if(!typeofbuilding.isEmpty()){
-//            query=query.whereEqualTo("typeofbuilding",typeofbuilding.trim().toLowerCase());
-//        }
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Buildings> houses = new ArrayList<>();
@@ -285,7 +295,8 @@ public class MainActivity extends AppCompatActivity {
                         houses.add(house);
                     }
                 }
-                posts=houses;if(posts.size()>0){
+                posts=houses;
+                if(posts.size()>0){
                     getRestoftheBuildings(posts);
                     Log.d(TAG, "getBuildings: "+posts.size());
                 }else {
