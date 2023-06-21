@@ -24,7 +24,7 @@ public class PostUpdateReceiver extends BroadcastReceiver {
         if (action.equals("sold")) {
             updateStatisticsAndMarkBuildingAsSold(buildingId);
         } else if (action.equals("notSold")) {
-                //add what ever 
+                //add whatever
         }
     }
 
