@@ -1,7 +1,5 @@
 package com.example.myapplication;
-
 import static android.content.ContentValues.TAG;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -75,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
         PeriodicWorkRequest checkSoldStatusWork =
                 new PeriodicWorkRequest.Builder(CheckSoldStatusWorker.class,24 , TimeUnit.HOURS)
-
                         .build();
 
         WorkManager.getInstance(this).enqueue(checkSoldStatusWork);
@@ -119,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (query.isEmpty()){
-                    getCloseBuildings();
+                    getTopSearchedBuildings();
                 }
                     String fixedQuery = typoFixer.fixTypos(query.toLowerCase());
                     Log.d(TAG, "onQueryTextSubmit: " + fixedQuery);
@@ -141,19 +138,24 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 if(newText.length() > 5){
                     Log.d(TAG, "onQueryTextSubmit: "+typoFixer.fixTypos(newText));
+                    posts.clear();
+                    showBuildings(posts);
                     searchBuildings(typoFixer.fixTypos(newText));
-                }else if (newText.isEmpty()) {
+                }else if (newText.isEmpty()||newText.length()==0) {
                     getTopSearchedBuildings();
                 }
 
                 return false;
             }
         });
+        posts.clear();
+        showBuildings(posts);
         getTopSearchedBuildings();
 
     }
     private void getCloseBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         CollectionReference housesRef = db.collection("Buildings");
         final User[] currentuser = {new User()};
         Utility.getUser(new Utility.UserCallback() {
@@ -175,10 +177,14 @@ public class MainActivity extends AppCompatActivity {
                             if (task1.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task1.getResult()) {
                                     Buildings house = document.toObject(Buildings.class);
-                                    if (!house.isSold())
+                                    if (!house.isSold()){
+
                                         closeBuildings.add(house);
+                                    }
                                 }
                                 if (!closeBuildings.isEmpty()) {
+                                    posts.clear();
+                                    showBuildings(posts);
                                     showBuildings(closeBuildings);
                                 }
                             } else {
@@ -196,11 +202,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Error getting user data", e);
             }
         });
-
         // Retrieve and show the top searched buildings
         getTopSearchedBuildings();
     }
-
     private void getTopSearchedBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference searchStatsRef = db.collection("searchStats");
@@ -214,15 +218,14 @@ public class MainActivity extends AppCompatActivity {
             Query query = searchStatsRef
                     .whereEqualTo("userId", currentUser.getUid())
                     .orderBy("count", Query.Direction.DESCENDING)
-                    .limit(10);
+                    .limit(1);
 
             query.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     List<Buildings> topSearchedBuildings = new ArrayList<>();
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         String search = document.getString("searchTerm");
-                        Log.d(TAG, "getTopSearchedBuildings: "+search);
-
+                        Log.d(TAG, "getTopSearchedBuildings: "+search+" "+document.getLong("count"));
                         searchBuildings(search);
                     }
                 } else {
@@ -267,15 +270,15 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-        getBuildings(maxPrice, maxSize, address, typeofbuilding, type);
+        getBuildings(maxPrice, maxSize, address, type);
     }
     private String removeChars(String str) {
         return str.replaceAll("[^\\d]", "");
     }
     private void getBuildings() {
-        getBuildings( Integer.MAX_VALUE, Integer.MAX_VALUE, "","","");
+        getBuildings( Integer.MAX_VALUE, Integer.MAX_VALUE,"","");
     }
-    private void getBuildings(int maxPrice, int maxSize, String address,String typeofbuilding,String type) {
+    private void getBuildings(int maxPrice, int maxSize, String address,String type) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference housesRef = db.collection("Buildings");
         Query query = housesRef.whereLessThanOrEqualTo("price", maxPrice);
@@ -299,8 +302,6 @@ public class MainActivity extends AppCompatActivity {
                 if(posts.size()>0){
                     getRestoftheBuildings(posts);
                     Log.d(TAG, "getBuildings: "+posts.size());
-                }else {
-                    getCloseBuildings();
                 }
 
             } else {
@@ -308,7 +309,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     private void getRestoftheBuildings(List<Buildings> posts) {
         db.collection("Buildings").get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
@@ -327,8 +327,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
     private void showBuildings(List<Buildings> buildings) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         HouseAdapter houseAdapter = new HouseAdapter(buildings);
@@ -348,7 +346,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // You'll need to define this interface somewhere in your code
     public interface OnSearchTermCheckListener {
         void onComplete(boolean exists);
     }
@@ -380,15 +377,11 @@ public class MainActivity extends AppCompatActivity {
     private void addNewSearchTerm(String searchTerm) {
         // Assume you have user ID here, get it from current logged-in user
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         long timestamp = System.currentTimeMillis() / 1000;
-
         SearchStats stats = new SearchStats(userId, searchTerm, timestamp, 1);
-
         db.collection("searchStats")
                 .add(stats)
                 .addOnSuccessListener(documentReference -> Log.d(TAG, "New search term added"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error adding new search term", e));
     }
-
 }
