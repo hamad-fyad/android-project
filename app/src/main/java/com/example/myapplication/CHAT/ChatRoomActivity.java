@@ -133,6 +133,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (!message.getSentBy().equals(currentUserId)) {
             if (!Utility.isActivityOpen(this, ChatRoomActivity.class)) {
 
+                Log.d(TAG, "sendNotification: dddddddssssswwwwwww");
                 String channelId = "com.example.myapplication";
                 String channelName = "NewMessageNotification";
 
