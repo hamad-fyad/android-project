@@ -222,11 +222,16 @@ public class MainActivity extends AppCompatActivity {
 
             query.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
+                    if(task.getResult().size()>0){
                     List<Buildings> topSearchedBuildings = new ArrayList<>();
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         String search = document.getString("searchTerm");
                         Log.d(TAG, "getTopSearchedBuildings: "+search+" "+document.getLong("count"));
                         searchBuildings(search);
+                    }
+                    }else {
+
+                            getBuildings();
                     }
                 } else {
                     Log.w(TAG, "Error getting documents.", task.getException());
@@ -299,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 posts=houses;
-                if(posts.size()>0){
+                if(posts.size()>=0){
                     getRestoftheBuildings(posts);
                     Log.d(TAG, "getBuildings: "+posts.size());
                 }

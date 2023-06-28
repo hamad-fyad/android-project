@@ -3,6 +3,8 @@ package com.example.myapplication.Utilitys;
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -17,6 +19,8 @@ import com.example.myapplication.classes.Buildings;
 import com.example.myapplication.classes.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
 
 public class Utility {
     public interface BuildingCallBack{
@@ -89,5 +93,19 @@ public class Utility {
         }).addOnFailureListener(callback::onError);
     }
 
+    public static boolean isActivityOpen(Context context, Class<?> activityClass) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+        if (activityManager != null) {
+            List<ActivityManager.RunningTaskInfo> runningTasks = activityManager.getRunningTasks(1);
+
+            if (!runningTasks.isEmpty()) {
+                ComponentName topActivity = runningTasks.get(0).topActivity;
+                return topActivity.getClassName().equals(activityClass.getName());
+            }
+        }
+
+        return false;
+    }
 
 }

@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.MyApplication;
 import com.example.myapplication.R;
+import com.example.myapplication.Utilitys.Utility;
 import com.example.myapplication.adapters.MessageAdapter;
 import com.example.myapplication.classes.Message;
 import com.google.firebase.Timestamp;
@@ -128,40 +129,42 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void sendNotification(Message message) {
-            if (!message.getSentBy().equals(currentUserId))
-            if (MyApplication.isInBackground()) {
-            String channelId = "com.example.myapplication";
-            String channelName = "NewMessageNotification";
 
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (!message.getSentBy().equals(currentUserId)) {
+            if (!Utility.isActivityOpen(this, ChatRoomActivity.class)) {
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
-                notificationManager.createNotificationChannel(channel);
-            }
+                String channelId = "com.example.myapplication";
+                String channelName = "NewMessageNotification";
 
-            Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);// The activity to open when the notification is clicked
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+                    notificationManager.createNotificationChannel(channel);
+                }
+
+                Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
                 resultIntent.putExtra("ownerId", currentUserId);
-                resultIntent.putExtra("currentUserId",otherUserId);
-            PendingIntent resultPendingIntent = PendingIntent.getActivity(
-                    getApplicationContext(),
-                    0,
-                    resultIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
-            );
+                resultIntent.putExtra("currentUserId", otherUserId);
+                PendingIntent resultPendingIntent = PendingIntent.getActivity(
+                        getApplicationContext(),
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(/*mypref.getString("name","")*/"hamad ")
-                    .setContentText(message.getMessage())//the current user that am using is doesn't have sharedpref
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setAutoCancel(true)
-                    .setContentIntent(resultPendingIntent);
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(/*mypref.getString("name","")*/"hamad ")
+                        .setContentText(message.getMessage())
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true)
+                        .setContentIntent(resultPendingIntent);
 
-            int notificationId = message.getMessage().hashCode();
-            notificationManager.notify(notificationId, builder.build());
+                int notificationId = message.getMessage().hashCode();
+                notificationManager.notify(notificationId, builder.build());
+            }
         }
-
     }
 
 }
