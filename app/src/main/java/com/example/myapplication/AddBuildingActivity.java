@@ -137,7 +137,7 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         long buildingcount=document.getLong("buildingcount");
-                        if (buildingcount==3){
+                        if (buildingcount==5){
                             Utility.showToast(this,"you cant add more buildings you have reached the maximum amount");
                             return;
                         }

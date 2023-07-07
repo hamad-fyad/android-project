@@ -20,20 +20,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
     public MessageAdapter(List<Message>messages) {
             this.messages=messages;
     }
-
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View chatView= LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item,null);
         MyViewHolder myViewHolder=new MyViewHolder(chatView);
         return myViewHolder;
-
     }
-
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Message message=messages.get(position);
-        if(message.getSentBy().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+        if(!message.getSentBy().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
             holder.leftChatView.setVisibility(View.GONE);
             holder.rightChatView.setVisibility(View.VISIBLE);
             holder.rightTextView.setText(message.getMessage());

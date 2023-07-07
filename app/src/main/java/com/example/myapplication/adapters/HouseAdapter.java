@@ -76,13 +76,10 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
             }
         });
         // Set building details
-
-
         LinearLayoutManager layoutManager = new LinearLayoutManager(holder.imageRecyclerView.getContext(), LinearLayoutManager.HORIZONTAL, false);
         SnapHelper snapHelper = new PagerSnapHelper();
         holder.imageRecyclerView.setLayoutManager(layoutManager);
         snapHelper.attachToRecyclerView(holder.imageRecyclerView);
-
         // Set up the ImageAdapter for the nested RecyclerView
         ArrayList<String> buildingImages = building.getPicture();
         ImageAdapter imageAdapter = new ImageAdapter(buildingImages);

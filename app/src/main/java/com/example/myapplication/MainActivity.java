@@ -16,6 +16,7 @@ import android.view.MenuItem;
 
 import android.widget.Button;
 
+import com.example.myapplication.CHAT.ChatRoomActivity;
 import com.example.myapplication.Utilitys.TypoFixer;
 import com.example.myapplication.Utilitys.Utility;
 import com.example.myapplication.adapters.HouseAdapter;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         List<String> dictionary = new ArrayList<>();
         dictionary.addAll(Arrays.asList(
-                "address","price","yanouh","yarka","beitjann" ,"carmeil","haifa","tel aviv",
+                "address","price","yanouh","yarka","beitjann" ,"kermail","haifa","tel aviv",
                  "building","type","renting","selling"
         ));
 

@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import com.example.myapplication.MyApplication;
 import com.example.myapplication.R;
 import com.example.myapplication.Utilitys.Utility;
 import com.example.myapplication.adapters.MessageAdapter;
@@ -76,7 +75,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void addMessageToFirestore(String messageText) {
-        Message message = new Message(currentUserId , messageText, new Timestamp(new Date()));
+        Message message = new Message(otherUserId , messageText, new Timestamp(new Date()));
         String chatId = otherUserId;
         String chatid2=currentUserId;
         Log.w(TAG, otherUserId);

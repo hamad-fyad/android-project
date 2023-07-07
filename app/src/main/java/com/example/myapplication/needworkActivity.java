@@ -3,20 +3,28 @@ package com.example.myapplication;
 import static android.content.ContentValues.TAG;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.myapplication.CHAT.ChatRoomActivity;
 import com.example.myapplication.Utilitys.PermissionUtils;
 import com.example.myapplication.Utilitys.Utility;
 import com.example.myapplication.adapters.WorkerAdapter;
+import com.example.myapplication.classes.Message;
 import com.example.myapplication.classes.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -130,6 +138,7 @@ public class needworkActivity extends AppCompatActivity {
                                                     DocumentSnapshot userDocument = userTask.getResult();
                                                     if (userDocument.exists()) {
                                                         User user = userDocument.toObject(User.class);
+                                                        sendNotification(user);
                                                         userList.add(user);
                                                         Log.w(TAG, "listenForInterestedUsers: " + user.toString());
                                                         // Update the RecyclerView when a new user is added
@@ -158,6 +167,45 @@ public class needworkActivity extends AppCompatActivity {
         }
     }
 
+    private void sendNotification(User user) {
+
+        if (!user.getUid().equals(currentUser)) {
+            if (!Utility.isActivityOpen(this, ChatRoomActivity.class)) {
+
+                Log.d(TAG, "sendNotification: dddddddssssswwwwwww");
+                String channelId = "com.example.myapplication";
+                String channelName = "NewMessageNotification";
+
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+                    notificationManager.createNotificationChannel(channel);
+                }
+
+                Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                resultIntent.putExtra("ownerId", user.getUid());
+                resultIntent.putExtra("currentUserId", currentUser);
+                PendingIntent resultPendingIntent = PendingIntent.getActivity(
+                        getApplicationContext(),
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(user.getName())
+                        .setContentText("a possible customer needing work")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true)
+                        .setContentIntent(resultPendingIntent);
+
+                int notificationId = user.getName().hashCode();
+                notificationManager.notify(notificationId, builder.build());
+            }
+        }
+    }
     @Override
     protected void onStop() {
         super.onStop();
