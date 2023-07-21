@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -66,7 +67,6 @@ public class needworkActivity extends AppCompatActivity {
                     updates.put("lookingForWork", true);
                     updates.put("latitude", location.getLatitude());
                     updates.put("longitude", location.getLongitude());
-
                     docRef.update(updates)
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
                             .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
@@ -76,9 +76,20 @@ public class needworkActivity extends AppCompatActivity {
                 }
             } else {
                 // Location permission is not granted, request it
-                PermissionUtils.requestFineLocationPermission(this);
+                new AlertDialog.Builder(this)
+                        .setTitle("Location Permission Needed")
+                        .setMessage("This app needs the Location permission to find workers nearby. Please grant this permission.")
+                        .setPositiveButton("OK", (dialogInterface, i) -> {
+                            //Prompt the user once explanation has been shown
+                            PermissionUtils.requestFineLocationPermission(this);
+                            updatelocation();
+                        })
+                        .create()
+                        .show();
+
             }
         }
+
 
         recyclerView = findViewById(R.id.worker_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -117,8 +128,33 @@ public class needworkActivity extends AppCompatActivity {
         listenForInterestedUsers();
     }
 
+    private void updatelocation() {
+        db = FirebaseFirestore.getInstance();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            DocumentReference docRef = db.collection("users").document(currentUser.getUid());
+
+            // Check if permissions are granted
+            if (PermissionUtils.hasFineLocationPermission(this)) {
+                Location location = Utility.getCurrentLocation(this);
+
+                if (location != null) {
+                    // If location is not null, update the user details in Firestore
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("lookingForWork", true);
+                    updates.put("latitude", location.getLatitude());
+                    updates.put("longitude", location.getLongitude());
+                    docRef.update(updates)
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
+                            .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
+                }
+            }
+        }
+    }
     private void listenForInterestedUsers() {
         if (currentUser != null) {
+
             db.collection("users").document(currentUser.getUid())
                     .addSnapshotListener((snapshot, e) -> {
                         if (e != null) {
@@ -154,7 +190,6 @@ public class needworkActivity extends AppCompatActivity {
                                             });
                                 }
                             } else {
-
                                 runOnUiThread(() -> {
                                     if (!isFinishing()) {
                                         Utility.showToast(needworkActivity.this, "No interested users at the moment. Please try again later.");

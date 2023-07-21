@@ -65,7 +65,6 @@ public class StatisticsView extends AppCompatActivity {
               SoldCount=user.getSoldCount();
               displaySearchStats();
           }
-
           @Override
           public void onError(Exception e) {
               Log.d(TAG, "onError: error getting the document ");
@@ -76,7 +75,6 @@ public class StatisticsView extends AppCompatActivity {
     private void displaySearchStats() {
         // Calculate average sell time
         // Set chart properties
-
         float avgSellTime=0;
         if (SoldCount!=0 && SellTimeSum!=0) {
             avgSellTime = (float) SellTimeSum / SoldCount;

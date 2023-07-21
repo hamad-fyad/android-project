@@ -53,7 +53,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MyViewHolder> 
                         holder.Picture.setImageResource(R.drawable.baseline_person_24);
                     }
                 }
-
                 @Override
                 public void onError(Exception e) {
                     Utility.showToast(holder.itemView.getContext(),"could not get the user ");

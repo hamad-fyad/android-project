@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         showBuildings(posts);
         Log.d(TAG, "getTopSearchedBuildings: "+posts.size());
         if (currentUser != null) {
-            // Retrieve the top 10 most searched terms
+            // Retrieve the top 1 most searched terms
             //i dont know why but here i had to use ascending for the top search
             Query query = searchStatsRef
                     .whereEqualTo("userId", currentUser.getUid())

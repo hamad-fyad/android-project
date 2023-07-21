@@ -60,6 +60,8 @@ public class serviceActivity2 extends AppCompatActivity {
         // Check if permissions are granted
         if (!PermissionUtils.hasFineLocationPermission(this)) {
             PermissionUtils.requestFineLocationPermission(this);
+            startActivity(new Intent(serviceActivity2.this, MapsActivity.class));
+
         }
         else {
             startActivity(new Intent(serviceActivity2.this, MapsActivity.class));
@@ -71,6 +73,7 @@ public class serviceActivity2 extends AppCompatActivity {
     private void need_work() {
         if (!PermissionUtils.hasFineLocationPermission(this)) {
             PermissionUtils.requestFineLocationPermission(this);
+            startActivity(new Intent(serviceActivity2.this, needworkActivity.class));
         }
         else {
             startActivity(new Intent(serviceActivity2.this, needworkActivity.class));

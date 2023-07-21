@@ -17,17 +17,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class PostUpdateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        //this comes from the PostUpdatesR
+        //this comes from the NotificationReceiver
         String buildingId = intent.getStringExtra("buildingId");
         String action = intent.getStringExtra("action");
 
         if (action.equals("sold")) {
             updateStatisticsAndMarkBuildingAsSold(buildingId);
         } else if (action.equals("notSold")) {
-                //add whatever
         }
     }
-
     private void updateStatisticsAndMarkBuildingAsSold(String buildingId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -75,7 +73,7 @@ public class PostUpdateReceiver extends BroadcastReceiver {
     private void decrementUserCount(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference userRef = db.collection("Users").document(userId);
-        userRef.update("count", FieldValue.increment(-1))
+        userRef.update("buildingcount", FieldValue.increment(-1))
                 .addOnSuccessListener(aVoid -> Log.d("PostUpdateReceiver", "Count successfully decremented!"))
                 .addOnFailureListener(e -> Log.w("PostUpdateReceiver", "Error decrementing count", e));
     }

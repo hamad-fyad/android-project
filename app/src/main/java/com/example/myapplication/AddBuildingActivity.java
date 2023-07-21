@@ -2,8 +2,10 @@ package com.example.myapplication;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -13,7 +15,9 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.myapplication.Utilitys.PermissionUtils;
 import com.example.myapplication.Utilitys.Utility;
@@ -30,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import android.Manifest;
+
+
 
 public class AddBuildingActivity extends AppCompatActivity {
     private LinearLayout imageContainer;
@@ -51,15 +58,8 @@ public class AddBuildingActivity extends AppCompatActivity {
         price = findViewById(R.id.price);
         size = findViewById(R.id.size);
          radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
-        if (!PermissionUtils.hasReadStoragePermission(this)) {
-            PermissionUtils.requestReadStoragePermission(this);
-        }
-        if (!PermissionUtils.hasCameraPermission(this)) {
-            PermissionUtils.requestCameraPermission(this);
-        }
-        if(!PermissionUtils.hasFineLocationPermission(this)){
-            PermissionUtils.requestFineLocationPermission(this);
-        }
+
+
 
         selectedImagesUris = new ArrayList<>();
         goBack.setOnClickListener(v -> startActivity(new Intent(AddBuildingActivity.this, MainActivity.class)));
@@ -74,10 +74,46 @@ public class AddBuildingActivity extends AppCompatActivity {
         });
 
 
-        addPicturesButton.setOnClickListener(v -> multipleImagePickerLauncher.launch("image/*"));
+        addPicturesButton.setOnClickListener(v -> {
+            if(checkPermissions()) {
+                multipleImagePickerLauncher.launch("image/*");
+            } else {
+                // If we don't have permissions, show an alert dialog with an explanation and an option to go to settings
+                new AlertDialog.Builder(this)
+                        .setTitle("Permissions Required")
+                        .setMessage("You need to enable storage and camera permissions to use this feature. Do you want to go to settings and enable them?")
+                        .setPositiveButton("Go to Settings", (dialog, which) -> {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", getPackageName(), null);
+                            intent.setData(uri);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
+    }
+    private boolean checkPermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
+
     private void addPictures(List<Uri> imagesUris) {
+        if (!PermissionUtils.hasReadStoragePermission(this)) {
+            PermissionUtils.requestReadStoragePermission(this);
+            if (!PermissionUtils.hasReadStoragePermission(this)) {
+                Utility.showToast(this,"you need to give permission");
+                startActivity(new Intent(this, AddBuildingActivity.class));
+            }
+        }
+        if (!PermissionUtils.hasCameraPermission(this)) {
+            PermissionUtils.requestCameraPermission(this);
+            if (!PermissionUtils.hasCameraPermission(this)) {
+                Utility.showToast(this,"you need to give permission");
+                startActivity(new Intent(this, AddBuildingActivity.class));
+            }
+        }
         for (Uri imageUri : imagesUris) {
             ShapeableImageView shapeableImageView = createShapeableImageView(imageUri);
             imageContainer.addView(shapeableImageView);

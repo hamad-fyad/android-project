@@ -5,12 +5,16 @@ import static android.content.ContentValues.TAG;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -36,7 +40,10 @@ import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Map;import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.content.ContextCompat;
+
 
 public class ProfileActivity extends AppCompatActivity {
 private Button chat,logout,personalSpace;
@@ -71,12 +78,6 @@ private Button chat,logout,personalSpace;
         UID.setText(uid);
       personalSpace = findViewById(R.id.personalSpace);
         loadUserData();
-        if(!PermissionUtils.hasCameraPermission(this)){
-            PermissionUtils.requestCameraPermission(this);
-        }
-        if(!PermissionUtils.hasReadStoragePermission(this)){
-            PermissionUtils.requestReadStoragePermission(this);
-        }
         EditProfile = findViewById(R.id.edit_profile);
         EditProfile.setOnClickListener(v -> ChangeDetails(true));
         save = findViewById(R.id.save);
@@ -110,9 +111,31 @@ private Button chat,logout,personalSpace;
         storageReference = FirebaseStorage.getInstance().getReference("uploads");
 
         // Set an OnClickListener on the profile image view
-        imageView.setOnClickListener(v -> openFileChooser());
+        imageView.setOnClickListener(v -> {
+            if(checkPermissions()) {
+                openFileChooser();
+            } else {
+                // If we don't have permissions, show an alert dialog with an explanation and an option to go to settings
+                new AlertDialog.Builder(this)
+                        .setTitle("Permissions Required")
+                        .setMessage("You need to enable storage and camera permissions to use this feature. Do you want to go to settings and enable them?")
+                        .setPositiveButton("Go to Settings", (dialog, which) -> {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", getPackageName(), null);
+                            intent.setData(uri);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
+
     }
 
+    private boolean checkPermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+    }
 
     private void Chat() {
         Intent intent=new Intent(ProfileActivity.this, ChatsActivity.class);
@@ -215,13 +238,17 @@ private Button chat,logout,personalSpace;
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (data != null && data.getData() != null) {
             imageUri = data.getData();
             // Use Glide to load the selected image into the ImageView
             Glide.with(this).load(imageUri).into(imageView);
             // Call the uploadImage method to save the image to Firebase Storage
             uploadImage();
-
+        } else {
+            Log.w(TAG, "No data in intent result");
+        }
     }
+
     private void uploadImage() {
         if (imageUri != null) {
             if (firebaseUser != null) {

@@ -2,13 +2,18 @@ package com.example.myapplication;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.myapplication.Utilitys.PermissionUtils;
 import com.example.myapplication.Utilitys.Utility;
 import com.example.myapplication.classes.User;
 import com.google.android.gms.maps.model.Circle;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -33,15 +38,22 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Map;import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private Circle circle;
     private  Location location1;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        checkLocationPermission();
+
         setContentView(R.layout.activity_maps);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -86,9 +98,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CollectionReference doc = firestore.collection("users");
         Query query = doc.whereEqualTo("lookingForWork", true)
                 .whereNotEqualTo("uid", user.getUid());
-
         Map<String, Marker> markers = new HashMap<>();
-
         query.addSnapshotListener((value, e) -> {
             if (e != null) {
                 Log.w(TAG, "Listen failed.", e);
@@ -159,6 +169,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             });
         });
+    }
+    private void checkLocationPermission() {
+        if (!PermissionUtils.hasFineLocationPermission(this)) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Location Permission Needed")
+                        .setMessage("This app needs the Location permission, please accept to use location functionality")
+                        .setPositiveButton("OK", (dialogInterface, i) -> {
+                            //Prompt the user once explanation has been shown
+                            requestLocationPermission();
+                        })
+                        .create()
+                        .show();
+            } else {
+                requestLocationPermission();
+            }
+        }
+    }
+
+    private void requestLocationPermission() {
+        PermissionUtils.requestFineLocationPermission(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        // permission granted
+                        Utility.showToast(this, "permission granted");
+                    } else {
+                        // permission denied
+                        checkLocationPermission();
+                    }
+                } else {
+                    // permission denied, ask for permission again
+                    checkLocationPermission();
+                }
+                return;
+            }
+        }
     }
 
     @Override
