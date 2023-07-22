@@ -20,6 +20,7 @@ public class Buildings  {
     private int number;
     private String Uid;
     private Date postCreatedDate,sellDate;
+    private Date listedTimestamp;
     private boolean isSold;
     public Buildings() {}
     public Buildings( String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption) {
@@ -34,13 +35,19 @@ public class Buildings  {
         this.number = random.nextInt();
         this.type = selectedOption;
         this.postCreatedDate = new Date();
+        this.listedTimestamp=new Date();
         this.sellDate=null;
         this.isSold=false;
     }
 
 
+    public Date getListedTimestamp() {
+        return listedTimestamp;
+    }
 
-
+    public void setListedTimestamp(Date date1) {
+        this.listedTimestamp = date1;
+    }
 
     public Date getSellDate() {
         return sellDate;

@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,12 +22,30 @@ public class PostUpdateReceiver extends BroadcastReceiver {
         //this comes from the NotificationReceiver
         String buildingId = intent.getStringExtra("buildingId");
         String action = intent.getStringExtra("action");
-
+        Log.w(TAG, "onReceive: "+action);
         if (action.equals("sold")) {
             updateStatisticsAndMarkBuildingAsSold(buildingId);
         } else if (action.equals("notSold")) {
+            updateTheDate(buildingId);
         }
     }
+
+    private void updateTheDate(String buildingId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference buildingRef = db.collection("Buildings").document(buildingId);
+        // Get the current timestamp for the new date
+        Timestamp newDateTimestamp = Timestamp.now();
+        // Update the postCreatedDate field with the new timestamp
+        buildingRef.update("postCreatedDate", newDateTimestamp)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("PostUpdateReceiver", "postCreatedDate successfully updated!");
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("PostUpdateReceiver", "Error updating postCreatedDate", e);
+                });
+    }
+
+
     private void updateStatisticsAndMarkBuildingAsSold(String buildingId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();

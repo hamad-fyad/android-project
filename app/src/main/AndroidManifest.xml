@@ -78,9 +78,10 @@
             </intent-filter>
         </activity>
         <receiver android:name=".PostUpdateReceiver"
+            android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.example.myapplication.BUILDING_UPDATE_ACTION" />
+                <action android:name="com.myapplication.BUILDING_UPDATE_ACTION" />
             </intent-filter>
         </receiver>
 

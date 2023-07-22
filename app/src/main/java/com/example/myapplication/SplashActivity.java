@@ -2,7 +2,9 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -15,6 +17,9 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        IntentFilter intentFilter=new IntentFilter("com.myapplication.BUILDING_UPDATE_ACTION");
+        PostUpdateReceiver obj=new PostUpdateReceiver();
+        registerReceiver(obj,intentFilter);
         new Handler().postDelayed(() -> {
             FirebaseUser currentUser= FirebaseAuth.getInstance().getCurrentUser();
             if(currentUser==null){

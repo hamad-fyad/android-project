@@ -15,6 +15,7 @@ import com.example.myapplication.classes.Buildings;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class NotificationReceiverActivity extends AppCompatActivity {
@@ -25,7 +26,6 @@ public class NotificationReceiverActivity extends AppCompatActivity {
         setContentView(R.layout.activity_notification_receiver);
         Utility.showToast(this,"you have to choose one or it will not cancel the the deleting of the building ");
         String buildingUid = getIntent().getStringExtra("building_uid");
-
         Button soldButton = findViewById(R.id.btn_sold);
         soldButton.setOnClickListener(v -> {
             // handle "Sold" click
@@ -33,16 +33,12 @@ public class NotificationReceiverActivity extends AppCompatActivity {
             cancelBuildingDeletion(buildingUid);
             Intent intent=new Intent(this,MainActivity.class);
             startActivity(intent);
-
         });
-
         Button notSoldButton = findViewById(R.id.btn_not_sold);
         notSoldButton.setOnClickListener(v -> {
             // handle "Not Sold" click
             markBuildingAsNotSold(buildingUid);
             cancelBuildingDeletion(buildingUid);
-            Intent intent=new Intent(this,MainActivity.class);
-            startActivity(intent);
         });
     }
 
@@ -54,7 +50,6 @@ public class NotificationReceiverActivity extends AppCompatActivity {
                 building.setSellDate(new Date());  // Current date
                 saveBuildingToDatabase(building,1, "sold");  // Save changes to database
             }
-
             @Override
             public void onError(Exception e) {
                 // handle error
@@ -62,12 +57,12 @@ public class NotificationReceiverActivity extends AppCompatActivity {
             }
         }, buildingUid);
     }
-
     private void markBuildingAsNotSold(String buildingUid) {
         Utility.getBuilding(new Utility.BuildingCallBack() {
             @Override
             public void onBuildingReceived(Buildings building) {
                 building.setSold(false);
+                building.setPostCreatedDate(new Date());
                 saveBuildingToDatabase(building,1, "notSold");  // Save changes to database
             }
 
@@ -106,10 +101,13 @@ public class NotificationReceiverActivity extends AppCompatActivity {
     }
 
     private void sendBroadcast(String action, String buildingId) {
+        Log.d(TAG, "sendBroadcast: sending");
         Intent intent = new Intent();
-        intent.setAction("com.example.myapplication.BUILDING_UPDATE_ACTION");
+        intent.setAction("com.myapplication.BUILDING_UPDATE_ACTION");
         intent.putExtra("action", action);
         intent.putExtra("buildingId", buildingId);
         this.sendBroadcast(intent);
+        Intent intent2=new Intent(this,MainActivity.class);
+        startActivity(intent2);
     }
 }
