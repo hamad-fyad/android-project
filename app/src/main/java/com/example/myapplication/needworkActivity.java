@@ -206,18 +206,14 @@ public class needworkActivity extends AppCompatActivity {
 
         if (!user.getUid().equals(currentUser)) {
             if (!Utility.isActivityOpen(this, ChatRoomActivity.class)) {
-
                 Log.d(TAG, "sendNotification: dddddddssssswwwwwww");
                 String channelId = "com.example.myapplication";
                 String channelName = "NewMessageNotification";
-
                 NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
                     notificationManager.createNotificationChannel(channel);
                 }
-
                 Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
                 resultIntent.putExtra("ownerId", user.getUid());
                 resultIntent.putExtra("currentUserId", currentUser);
@@ -227,7 +223,6 @@ public class needworkActivity extends AppCompatActivity {
                         resultIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
-
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(user.getName())
@@ -252,7 +247,6 @@ public class needworkActivity extends AppCompatActivity {
         updates.put("latitude", -1);
         updates.put("longitude", -1);
         updates.put("interestedUsers", null);
-
         DocumentReference docRef = db.collection("users").document(user.getUid());
         docRef
                 .update(updates)

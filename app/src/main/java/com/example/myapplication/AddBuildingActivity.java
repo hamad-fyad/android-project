@@ -57,7 +57,7 @@ public class AddBuildingActivity extends AppCompatActivity {
         Address = findViewById(R.id.address);
         price = findViewById(R.id.price);
         size = findViewById(R.id.size);
-         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
 
 
 
@@ -100,20 +100,6 @@ public class AddBuildingActivity extends AppCompatActivity {
 
 
     private void addPictures(List<Uri> imagesUris) {
-        if (!PermissionUtils.hasReadStoragePermission(this)) {
-            PermissionUtils.requestReadStoragePermission(this);
-            if (!PermissionUtils.hasReadStoragePermission(this)) {
-                Utility.showToast(this,"you need to give permission");
-                startActivity(new Intent(this, AddBuildingActivity.class));
-            }
-        }
-        if (!PermissionUtils.hasCameraPermission(this)) {
-            PermissionUtils.requestCameraPermission(this);
-            if (!PermissionUtils.hasCameraPermission(this)) {
-                Utility.showToast(this,"you need to give permission");
-                startActivity(new Intent(this, AddBuildingActivity.class));
-            }
-        }
         for (Uri imageUri : imagesUris) {
             ShapeableImageView shapeableImageView = createShapeableImageView(imageUri);
             imageContainer.addView(shapeableImageView);

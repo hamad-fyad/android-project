@@ -2,11 +2,14 @@ package com.example.myapplication;
 
 
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 
 
@@ -59,9 +62,17 @@ public class serviceActivity2 extends AppCompatActivity {
     private void need_service() {
         // Check if permissions are granted
         if (!PermissionUtils.hasFineLocationPermission(this)) {
-            PermissionUtils.requestFineLocationPermission(this);
-            startActivity(new Intent(serviceActivity2.this, MapsActivity.class));
-
+            new AlertDialog.Builder(this)
+                    .setTitle("Permissions Required")
+                    .setMessage("You need to enable location permissions to use this feature. Do you want to go to settings and enable them?")
+                    .setPositiveButton("Go to Settings", (dialog, which) -> {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         }
         else {
             startActivity(new Intent(serviceActivity2.this, MapsActivity.class));
@@ -72,8 +83,17 @@ public class serviceActivity2 extends AppCompatActivity {
 
     private void need_work() {
         if (!PermissionUtils.hasFineLocationPermission(this)) {
-            PermissionUtils.requestFineLocationPermission(this);
-            startActivity(new Intent(serviceActivity2.this, needworkActivity.class));
+            new AlertDialog.Builder(this)
+                    .setTitle("Permissions Required")
+                    .setMessage("You need to enable location permissions to use this feature. Do you want to go to settings and enable them?")
+                    .setPositiveButton("Go to Settings", (dialog, which) -> {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         }
         else {
             startActivity(new Intent(serviceActivity2.this, needworkActivity.class));
