@@ -3,10 +3,12 @@ package com.example.myapplication.adapters;
 import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -55,8 +57,13 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                         building.getPrice() + " $\n" +
                         "Size: " + building.getSize()+ " m\n" +
                         (building.getType().equals("selling") ? "Selling\n" : "Renting\n")+
-                        email + "\n" + number;
+                        email + "\n"+number ;
 
+                if(user.getUid().equals(building.getUseruid())){
+                    holder.deleteButton.setVisibility(View.VISIBLE); // Show the delete button
+                }else {
+                    holder.deleteButton.setVisibility(View.GONE); // Hide the delete button
+                }
                 holder.textViewDetails.setText(buildingDetails);
                 // Set up click listener for itemView
                 holder.itemView.setOnClickListener(v -> {
@@ -70,6 +77,27 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                         intent.putExtra("currentUserId", FirebaseAuth.getInstance().getUid());
                         holder.itemView.getContext().startActivity(intent);
                     }});
+                holder.deleteButton.setOnClickListener(v -> {
+
+                    if(user.getUid().equals(building.getUseruid())){
+                        houses.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, houses.size());
+                        firestore.collection("buildings").document(building.getUid()).delete()
+                                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
+                                .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+                    } else {
+                        Utility.showToast(holder.itemView.getContext(),"You can only delete your own posts");
+                    }
+                });
+
+                holder.callButton.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:" + number));
+
+                    holder.itemView.getContext().startActivity(intent);
+                });
+
 
             }else{
                 Log.d(TAG, "No such document");
@@ -95,11 +123,19 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         RecyclerView imageRecyclerView;
         TextView textViewDetails;
+        Button deleteButton;
+        Button callButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageRecyclerView = itemView.findViewById(R.id.imageRecyclerView);
             textViewDetails = itemView.findViewById(R.id.textViewDetails);
+            deleteButton = itemView.findViewById(R.id.deleteButton);
+            deleteButton.setVisibility(View.GONE);
+            callButton = itemView.findViewById(R.id.callButton);
         }
-    }
+
+
+
+}
 }
