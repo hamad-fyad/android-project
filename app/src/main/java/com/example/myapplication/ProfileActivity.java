@@ -112,7 +112,7 @@ private Button chat,logout,personalSpace;
 
         // Set an OnClickListener on the profile image view
         imageView.setOnClickListener(v -> {
-            if(checkPermissions()) {
+            if(PermissionUtils.hasCameraPermission(this)&&PermissionUtils.hasReadStoragePermission(this)) {
                 openFileChooser();
             } else {
                 // If we don't have permissions, show an alert dialog with an explanation and an option to go to settings
@@ -132,10 +132,7 @@ private Button chat,logout,personalSpace;
 
     }
 
-    private boolean checkPermissions() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
-    }
+
 
     private void Chat() {
         Intent intent=new Intent(ProfileActivity.this, ChatsActivity.class);

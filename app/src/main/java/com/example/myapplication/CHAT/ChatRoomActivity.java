@@ -128,21 +128,18 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void sendNotification(Message message) {
-
+        Log.d(TAG, "sendNotification: "+currentUserId+"  "+message.getSentBy());
         if (!message.getSentBy().equals(currentUserId)) {
+            Log.d(TAG, "sendNotification: dddddddssssswwwwwww");
             if (!Utility.isActivityOpen(this, ChatRoomActivity.class)) {
-
                 Log.d(TAG, "sendNotification: dddddddssssswwwwwww");
                 String channelId = "com.example.myapplication";
                 String channelName = "NewMessageNotification";
-
                 NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
                     notificationManager.createNotificationChannel(channel);
                 }
-
                 Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
                 resultIntent.putExtra("ownerId", currentUserId);
                 resultIntent.putExtra("currentUserId", otherUserId);

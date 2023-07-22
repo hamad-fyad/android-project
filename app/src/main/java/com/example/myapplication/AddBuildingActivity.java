@@ -58,9 +58,6 @@ public class AddBuildingActivity extends AppCompatActivity {
         price = findViewById(R.id.price);
         size = findViewById(R.id.size);
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
-
-
-
         selectedImagesUris = new ArrayList<>();
         goBack.setOnClickListener(v -> startActivity(new Intent(AddBuildingActivity.this, MainActivity.class)));
 
@@ -75,7 +72,7 @@ public class AddBuildingActivity extends AppCompatActivity {
 
 
         addPicturesButton.setOnClickListener(v -> {
-            if(checkPermissions()) {
+            if(PermissionUtils.hasCameraPermission(this)&&PermissionUtils.hasReadStoragePermission(this)) {
                 multipleImagePickerLauncher.launch("image/*");
             } else {
                 // If we don't have permissions, show an alert dialog with an explanation and an option to go to settings
@@ -93,10 +90,7 @@ public class AddBuildingActivity extends AppCompatActivity {
             }
         });
     }
-    private boolean checkPermissions() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
-    }
+
 
 
     private void addPictures(List<Uri> imagesUris) {

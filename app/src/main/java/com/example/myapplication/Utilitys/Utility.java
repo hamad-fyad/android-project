@@ -101,7 +101,9 @@ public class Utility {
 
             if (!runningTasks.isEmpty()) {
                 ComponentName topActivity = runningTasks.get(0).topActivity;
-                return topActivity.getClassName().equals(activityClass.getName());
+                if(topActivity.getClassName().equals(activityClass.getName()))
+                return true;
+                else return false;
             }
         }
 
