@@ -23,6 +23,8 @@ import com.example.myapplication.Utilitys.Utility;
 import com.example.myapplication.classes.Buildings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -84,7 +86,10 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, houses.size());
                         firestore.collection("buildings").document(building.getUid()).delete()
-                                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                    decrementUserCount(user.getUid());
+                                })
                                 .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
                     } else {
                         Utility.showToast(holder.itemView.getContext(),"You can only delete your own posts");
@@ -114,7 +119,13 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
         holder.imageRecyclerView.setAdapter(imageAdapter);
 
     }
-
+    private void decrementUserCount(String userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("Users").document(userId);
+        userRef.update("buildingcount", FieldValue.increment(-1))
+                .addOnSuccessListener(aVoid -> Log.d("PostUpdateReceiver", "Count successfully decremented!"))
+                .addOnFailureListener(e -> Log.w("PostUpdateReceiver", "Error decrementing count", e));
+    }
     @Override
     public int getItemCount() {
         return houses.size();
