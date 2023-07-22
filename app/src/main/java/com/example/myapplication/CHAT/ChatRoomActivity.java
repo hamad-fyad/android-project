@@ -128,9 +128,8 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void sendNotification(Message message) {
-        Log.d(TAG, "sendNotification: "+currentUserId+"  "+message.getSentBy());
-        if (!message.getSentBy().equals(currentUserId)) {
-            Log.d(TAG, "sendNotification: dddddddssssswwwwwww");
+        Log.d(TAG, "sendNotification: "+otherUserId+"  "+message.getSentBy());
+        if (!message.getSentBy().equals(otherUserId)) {
             if (!Utility.isActivityOpen(this, ChatRoomActivity.class)) {
                 Log.d(TAG, "sendNotification: dddddddssssswwwwwww");
                 String channelId = "com.example.myapplication";

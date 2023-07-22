@@ -101,9 +101,9 @@ public class Utility {
 
             if (!runningTasks.isEmpty()) {
                 ComponentName topActivity = runningTasks.get(0).topActivity;
-                if(topActivity.getClassName().equals(activityClass.getName()))
-                return true;
-                else return false;
+                Log.d(TAG, "isActivityOpen: "+activityClass.getName()+"    "+topActivity);
+                Log.d(TAG, "isActivityOpen: "+topActivity.getClassName().equals(activityClass.getName()));
+                return topActivity.getClassName().equals(activityClass.getName());
             }
         }
 
