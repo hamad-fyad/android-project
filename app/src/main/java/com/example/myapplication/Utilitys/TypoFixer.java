@@ -25,10 +25,8 @@ public class TypoFixer {
                 correctedWords.add(word);
             }
         }
-
         return String.join(" ", correctedWords);
     }
-
     private String getCorrection(String word) {
         String suggestedCorrection = word;
         int minDistance = Integer.MAX_VALUE;
@@ -39,7 +37,6 @@ public class TypoFixer {
                 suggestedCorrection = dictWord;
             }
         }
-
         return suggestedCorrection;
     }
 

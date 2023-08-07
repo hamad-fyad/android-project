@@ -6,12 +6,14 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -42,6 +44,8 @@ public class AddBuildingActivity extends AppCompatActivity {
     private LinearLayout imageContainer;
     private EditText Address, price, size;
     private ActivityResultLauncher<String> multipleImagePickerLauncher;
+    private Spinner area;
+
     private List<Uri> selectedImagesUris;
     private RadioGroup radioGroup;
     private RadioButton radioButton;
@@ -57,6 +61,11 @@ public class AddBuildingActivity extends AppCompatActivity {
         Address = findViewById(R.id.address);
         price = findViewById(R.id.price);
         size = findViewById(R.id.size);
+        area = findViewById(R.id.spinner_type_of_buildings);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.building_types_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        area.setAdapter(adapter);
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         selectedImagesUris = new ArrayList<>();
         goBack.setOnClickListener(v -> startActivity(new Intent(AddBuildingActivity.this, MainActivity.class)));
@@ -161,6 +170,8 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
                         String address = Address.getText().toString().toLowerCase().trim();
                         double buildingPrice = Double.parseDouble(price.getText().toString());
                         double buildingSize = Double.parseDouble(size.getText().toString());
+                        String area1=area.getSelectedItem().toString().trim();
+
                         Address.setText("");
                         price.setText("");
                         size.setText("");
@@ -176,7 +187,7 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
                             // Get the UID of the new document
                             String buildingUid = newBuildingRef.getId();
                             //we needed to add the uid so we only
-                            Buildings building = new Buildings(address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption.toLowerCase());
+                            Buildings building = new Buildings(address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption.toLowerCase(),area1);
 
                             // Save the Building object to the Firestore database using the generated document reference
                             newBuildingRef.set(building)

@@ -94,7 +94,16 @@
             android:layout_marginTop="12dp"
             android:gravity="center_horizontal"
             android:orientation="vertical">
-
+            <Spinner
+                android:id="@+id/spinner_type_of_buildings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/rounded_corner"
+                android:minHeight="48dp"
+                android:padding="16dp"
+                android:contentDescription="add building type"
+                android:spinnerMode="dropdown" />
             <RadioGroup
                 android:id="@+id/radioGroup"
                 android:layout_width="wrap_content"

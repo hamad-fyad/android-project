@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">S&amp;H real-estate</string>
     <string name="title_activity_maps">MapsActivity</string>
-
+    <string-array name="building_types_array">
+        <item>tsafon</item>
+        <item>merkaz</item>
+        <item>darom</item>
+    </string-array>
 </resources>
 

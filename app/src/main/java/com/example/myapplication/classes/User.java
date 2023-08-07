@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private  String name ,address,email,number,photoURL,uid;
+    private  String name ,address,email,number,photoURL,uid,role;
     private long buildingcount;
     private boolean lookingForWork,lookingforservice;
     private double longitude,latitude;
@@ -29,7 +29,16 @@ public class User {
         this.interestedUsers = new ArrayList<>();
         this.sellTimeSum=0;
         this.soldCount=0;
+        this.role="user";
 
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getUid() {

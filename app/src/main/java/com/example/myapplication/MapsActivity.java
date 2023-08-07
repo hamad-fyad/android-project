@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.example.myapplication.Utilitys.PermissionUtils;
 import com.example.myapplication.Utilitys.Utility;
 import com.example.myapplication.classes.User;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 
 import android.annotation.SuppressLint;
@@ -138,7 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onUserReceived(User user12) {
                     LatLng current = new LatLng(user12.getLatitude(), user12.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(current).title("you are here "));
+                    mMap.addMarker(new MarkerOptions().position(current).title("you are here ")).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
                     CircleOptions circleOptions = new CircleOptions()
@@ -170,7 +171,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
         });
     }
+
     private void checkLocationPermission() {
+
         if (!PermissionUtils.hasFineLocationPermission(this)) {
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 new AlertDialog.Builder(this)

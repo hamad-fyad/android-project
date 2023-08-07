@@ -31,20 +31,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> {
-
     private List<Buildings> houses;
-
     public HouseAdapter(List<Buildings> houses) {
         this.houses = houses;
     }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.house_item, parent, false);
         return new ViewHolder(view);
     }
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Buildings building = houses.get(position);
@@ -62,9 +58,14 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                         email + "\n"+number ;
 
                 if(user.getUid().equals(building.getUseruid())){
-                    holder.deleteButton.setVisibility(View.VISIBLE); // Show the delete button
+                    holder.deleteButton.setVisibility(View.VISIBLE);
                 }else {
-                    holder.deleteButton.setVisibility(View.GONE); // Hide the delete button
+                    holder.deleteButton.setVisibility(View.GONE);
+                }
+                if(!user.getUid().equals(building.getUseruid())){
+                    holder.callButton.setVisibility(View.VISIBLE);
+                }else {
+                    holder.callButton.setVisibility(View.GONE);
                 }
                 holder.textViewDetails.setText(buildingDetails);
                 // Set up click listener for itemView
@@ -99,7 +100,6 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                 holder.callButton.setOnClickListener(v -> {
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse("tel:" + number));
-
                     holder.itemView.getContext().startActivity(intent);
                 });
 
@@ -117,7 +117,6 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
         ArrayList<String> buildingImages = building.getPicture();
         ImageAdapter imageAdapter = new ImageAdapter(buildingImages);
         holder.imageRecyclerView.setAdapter(imageAdapter);
-
     }
     private void decrementUserCount(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

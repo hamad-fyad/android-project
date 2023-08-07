@@ -47,7 +47,7 @@ public class NotificationReceiverActivity extends AppCompatActivity {
             @Override
             public void onBuildingReceived(Buildings building) {
                 building.setSold(true);
-                building.setSellDate(new Date());  // Current date
+                building.setListedTimestamp(new Date());  // Current date
                 saveBuildingToDatabase(building,1, "sold");  // Save changes to database
             }
             @Override

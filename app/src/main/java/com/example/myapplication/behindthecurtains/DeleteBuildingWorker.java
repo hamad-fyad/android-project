@@ -46,11 +46,7 @@ public class DeleteBuildingWorker extends Worker {
         db.collection("Buildings")
             .document(buildingUid)
             .delete()
-            .addOnSuccessListener(aVoid -> {
-                Log.d(TAG, "Building successfully deleted!");
-            })
-            .addOnFailureListener(e -> {
-                Log.w(TAG, "Error deleting building", e);
-            });
+            .addOnSuccessListener(aVoid -> Log.d(TAG, "Building successfully deleted!"))
+            .addOnFailureListener(e -> Log.w(TAG, "Error deleting building", e));
     }
 }

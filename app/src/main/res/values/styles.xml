@@ -6,6 +6,7 @@
         <item name="colorAccent">#FF4081</item>
         <item name="background">@drawable/rounded_corner</item>
 
+
     </style>
     <style name="MapFragmentStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/black</item>
