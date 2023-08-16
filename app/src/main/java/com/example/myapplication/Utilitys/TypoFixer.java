@@ -3,13 +3,18 @@ package com.example.myapplication.Utilitys;
 import java.util.*;
 
 public class TypoFixer {
-    private List<String> dictionary;
+    public List<String> dictionary;
     private Map<List<String>, Integer> distanceCache;
 
     public TypoFixer(List<String> dictionary) {
         this.dictionary = new ArrayList<>(dictionary);
         this.distanceCache = new HashMap<>();
     }
+    public TypoFixer() {
+        this.dictionary = new ArrayList<>(); // Initialize the dictionary here
+        this.distanceCache = new HashMap<>();
+    }
+
 
     public String fixTypos(String text) {
         String[] words = text.split(" ");
@@ -69,5 +74,11 @@ public class TypoFixer {
         distanceCache.put(Arrays.asList(word1, word2), dp[m][n]);
 
         return dp[m][n];
+    }
+
+
+    public void addWords(List<String> wordsToAdd) {
+        dictionary.addAll(wordsToAdd);
+        distanceCache.clear();
     }
 }

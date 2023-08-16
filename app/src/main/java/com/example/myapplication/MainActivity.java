@@ -38,7 +38,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,13 +62,27 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView=findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.browsing);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-        List<String> dictionary = new ArrayList<>();
-        dictionary.addAll(Arrays.asList(
-                "address","price","yanouh","yarka","beitjann" ,"kermail","haifa","tel aviv",
-                 "building","type","renting","selling"
-        ));
+        this.typoFixer = new TypoFixer();
 
-        this.typoFixer = new TypoFixer(dictionary);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        TypoFixer typoFixer = new TypoFixer(); // Create a new instance of TypoFixer
+
+        db.collection("Words")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            List<String> dictionary = (List<String>) document.get("dictionary");
+                            if (dictionary != null) {
+                                typoFixer.addWords(dictionary); // Add words to TypoFixer instance
+                            }
+                        }
+                        // Now you can use the typoFixer instance containing all words
+                    } else {
+                        Log.d(TAG, "onComplete: failed", task.getException());
+                    }
+                });
+
 
 
 
