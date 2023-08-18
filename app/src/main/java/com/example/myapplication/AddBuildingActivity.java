@@ -1,11 +1,14 @@
 package com.example.myapplication;
 
+import static android.content.ContentValues.TAG;
+
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -171,7 +174,7 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
                         double buildingPrice = Double.parseDouble(price.getText().toString());
                         double buildingSize = Double.parseDouble(size.getText().toString());
                         String area1=area.getSelectedItem().toString().trim();
-
+                        Log.d(TAG, "addBuilding: "+area1);
                         Address.setText("");
                         price.setText("");
                         size.setText("");
@@ -183,11 +186,10 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
                         uploadImagesAndGetUrls(selectedImagesUris, imageUrls -> {
                             // Generate a new document reference with an auto-generated ID
                             DocumentReference newBuildingRef = firestore.collection("Buildings").document();
-
                             // Get the UID of the new document
                             String buildingUid = newBuildingRef.getId();
                             //we needed to add the uid so we only
-                            Buildings building = new Buildings(address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption.toLowerCase(),area1);
+                            Buildings building = new Buildings(address, buildingPrice, buildingSize, userId, imageUrls,buildingUid,selectedOption.toLowerCase(), area1.toLowerCase());
 
                             // Save the Building object to the Firestore database using the generated document reference
                             newBuildingRef.set(building)

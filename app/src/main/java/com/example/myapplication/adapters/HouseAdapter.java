@@ -32,57 +32,60 @@ import java.util.List;
 
 public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> {
     private List<Buildings> houses;
+
     public HouseAdapter(List<Buildings> houses) {
         this.houses = houses;
     }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.house_item, parent, false);
         return new ViewHolder(view);
     }
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Buildings building = houses.get(position);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection("users").document(building.getUseruid()).get().addOnSuccessListener(documentSnapshot->{
+        firestore.collection("users").document(building.getUseruid()).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String email = documentSnapshot.getString("email");
                 String number = documentSnapshot.getString("number");
-                String buildingDetails = "Address: " + building.getAddress()  +
-                         "\nPrice: " +
+                String buildingDetails = "Address: " + building.getAddress() +
+                        "\nPrice: " +
                         building.getPrice() + " $\n" +
-                        "Size: " + building.getSize()+ " m\n" +
-                        (building.getType().equals("selling") ? "Selling\n" : "Renting\n")+
-                        email + "\n"+number ;
+                        "Size: " + building.getSize() + " m\n" +
+                        (building.getType().equals("selling") ? "Selling\n" : "Renting\n") +
+                        email;
 
-                if(user.getUid().equals(building.getUseruid())){
+                if (user.getUid().equals(building.getUseruid())) {
                     holder.deleteButton.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     holder.deleteButton.setVisibility(View.GONE);
                 }
-                if(!user.getUid().equals(building.getUseruid())){
+                if (!user.getUid().equals(building.getUseruid())) {
                     holder.callButton.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     holder.callButton.setVisibility(View.GONE);
                 }
                 holder.textViewDetails.setText(buildingDetails);
                 // Set up click listener for itemView
                 holder.itemView.setOnClickListener(v -> {
-                    if(user.getUid().equals(building.getUseruid())){
-                        Utility.showToast(holder.itemView.getContext(),"its your own post cant open a chat ");
-                    }else {
+                    if (user.getUid().equals(building.getUseruid())) {
+                        Utility.showToast(holder.itemView.getContext(), "its your own post cant open a chat ");
+                    } else {
                         // Open ChatRoomActivity when clicked
                         Intent intent = new Intent(holder.itemView.getContext(), ChatRoomActivity.class);
                         intent.putExtra("ownerId", building.getUseruid());
-                        intent.putExtra("name",documentSnapshot.getString("name"));
+                        intent.putExtra("name", documentSnapshot.getString("name"));
                         intent.putExtra("currentUserId", FirebaseAuth.getInstance().getUid());
                         holder.itemView.getContext().startActivity(intent);
-                    }});
+                    }
+                });
                 holder.deleteButton.setOnClickListener(v -> {
-
-                    if(user.getUid().equals(building.getUseruid())){
+                    if (user.getUid().equals(building.getUseruid())) {
                         houses.remove(position);
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, houses.size());
@@ -93,7 +96,7 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                                 })
                                 .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
                     } else {
-                        Utility.showToast(holder.itemView.getContext(),"You can only delete your own posts");
+                        Utility.showToast(holder.itemView.getContext(), "You can only delete your own posts");
                     }
                 });
 
@@ -102,22 +105,17 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                     intent.setData(Uri.parse("tel:" + number));
                     holder.itemView.getContext().startActivity(intent);
                 });
-
-
-            }else{
+            } else {
                 Log.d(TAG, "No such document");
             }
         });
+
         // Set building details
-        LinearLayoutManager layoutManager = new LinearLayoutManager(holder.imageRecyclerView.getContext(), LinearLayoutManager.HORIZONTAL, false);
-        SnapHelper snapHelper = new PagerSnapHelper();
-        holder.imageRecyclerView.setLayoutManager(layoutManager);
-        snapHelper.attachToRecyclerView(holder.imageRecyclerView);
-        // Set up the ImageAdapter for the nested RecyclerView
         ArrayList<String> buildingImages = building.getPicture();
         ImageAdapter imageAdapter = new ImageAdapter(buildingImages);
         holder.imageRecyclerView.setAdapter(imageAdapter);
     }
+
     private void decrementUserCount(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference userRef = db.collection("Users").document(userId);
@@ -125,6 +123,7 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                 .addOnSuccessListener(aVoid -> Log.d("PostUpdateReceiver", "Count successfully decremented!"))
                 .addOnFailureListener(e -> Log.w("PostUpdateReceiver", "Error decrementing count", e));
     }
+
     @Override
     public int getItemCount() {
         return houses.size();
@@ -143,9 +142,11 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
             deleteButton = itemView.findViewById(R.id.deleteButton);
             deleteButton.setVisibility(View.GONE);
             callButton = itemView.findViewById(R.id.callButton);
+
+            LinearLayoutManager layoutManager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
+            SnapHelper snapHelper = new PagerSnapHelper();
+            imageRecyclerView.setLayoutManager(layoutManager);
+            snapHelper.attachToRecyclerView(imageRecyclerView);
         }
-
-
-
-}
+    }
 }

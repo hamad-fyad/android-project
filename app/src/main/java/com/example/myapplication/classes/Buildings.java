@@ -13,7 +13,8 @@ import java.util.Random;
 
 public class Buildings  {
     private double Size;
-    private String useruid,type,area;
+    private String useruid,type;
+    private String area ;
     private ArrayList<String> picture;
     private String Address;
     private double Price;
@@ -23,9 +24,16 @@ public class Buildings  {
     private Date listedTimestamp;
     private boolean isSold;
     public Buildings() {}
-    public Buildings( String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption,String area) {
-        this.area=area;
+    public String getArea() {
+        return area;
+    }
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public Buildings(String address, double buildingPrice, double buildingSize, String userId, ArrayList<String> imageUrls, String buildingUid, String selectedOption, String area) {
         this.picture = imageUrls;
+        this.area=area;
         this.Uid = buildingUid;
         this.Address = address;
         this.Price = buildingPrice;
@@ -38,6 +46,8 @@ public class Buildings  {
         this.listedTimestamp=new Date();
         this.sellDate=null;
         this.isSold=false;
+
+
     }
 
 

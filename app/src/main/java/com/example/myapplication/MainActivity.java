@@ -38,6 +38,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,38 +64,31 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.browsing);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         this.typoFixer = new TypoFixer();
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         TypoFixer typoFixer = new TypoFixer(); // Create a new instance of TypoFixer
-
         db.collection("Words")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            List<String> dictionary = (List<String>) document.get("dictionary");
-                            if (dictionary != null) {
-                                typoFixer.addWords(dictionary); // Add words to TypoFixer instance
+                            Object dictionaryValue = document.get("dictionary");
+                            if (dictionaryValue instanceof String) {
+                                String dictionary = (String) dictionaryValue;
+                                typoFixer.addWords(Collections.singletonList(dictionary));
+                            } else if (dictionaryValue instanceof List) {
+                                List<String> dictionaryList = (List<String>) dictionaryValue;
+                                typoFixer.addWords(dictionaryList);
                             }
                         }
-                        // Now you can use the typoFixer instance containing all words
                     } else {
                         Log.d(TAG, "onComplete: failed", task.getException());
                     }
                 });
-
-
-
-
         // Utility.showToast(this,"click on the post to open chat with the owner");
-
         PeriodicWorkRequest checkSoldStatusWork =
                 new PeriodicWorkRequest.Builder(CheckSoldStatusWorker.class,24 , TimeUnit.HOURS)
                         .build();
-
         WorkManager.getInstance(this).enqueue(checkSoldStatusWork);
-
-
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -126,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
         searchView = findViewById(R.id.searchView);
         SearchView searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -137,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                     String fixedQuery = typoFixer.fixTypos(query.toLowerCase());
                     Log.d(TAG, "onQueryTextSubmit: " + fixedQuery);
-
                     // Check if the same search term has been submitted before
                 isPreviousSearchTerm(fixedQuery, exists -> {
                     if (exists) {
@@ -161,18 +153,15 @@ public class MainActivity extends AppCompatActivity {
                 }else if (newText.isEmpty()||newText.length()==0) {
                     getTopSearchedBuildings();
                 }
-
                 return false;
             }
         });
         posts.clear();
         showBuildings(posts);
         getTopSearchedBuildings();
-
     }
     private void getCloseBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         CollectionReference housesRef = db.collection("Buildings");
         final User[] currentuser = {new User()};
         Utility.getUser(new Utility.UserCallback() {
@@ -195,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
                                 for (QueryDocumentSnapshot document : task1.getResult()) {
                                     Buildings house = document.toObject(Buildings.class);
                                     if (!house.isSold()){
-
                                         closeBuildings.add(house);
                                     }
                                 }
@@ -213,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-
             @Override
             public void onError(Exception e) {
                 Log.w(TAG, "Error getting user data", e);
@@ -236,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
                     .whereEqualTo("userId", currentUser.getUid())
                     .orderBy("count", Query.Direction.DESCENDING)
                     .limit(1);
-
             query.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     if(task.getResult().size()>0){
@@ -247,7 +233,6 @@ public class MainActivity extends AppCompatActivity {
                         searchBuildings(search);
                     }
                     }else {
-
                             getBuildings();
                     }
                 } else {
@@ -263,18 +248,15 @@ public class MainActivity extends AppCompatActivity {
         if (searchText == null || searchText.isEmpty()) {
             return;
         }
-
         int maxSize = Integer.MAX_VALUE;
         int maxPrice = Integer.MAX_VALUE;
         String address = "", typeofbuilding = "", type = "";
-
         // Trim leading and trailing whitespace and replace multiple spaces with single space
         searchText = searchText.trim().replaceAll("\\s+", " ");
         String[] searchTerms = searchText.split(" ");
         for (int i = 0; i < searchTerms.length - 1; i++) {
             String term = searchTerms[i].toLowerCase();
             String value = searchTerms[i + 1];
-
             switch (term) {
                 case "size":
                     value = removeChars(value);
@@ -325,7 +307,6 @@ public class MainActivity extends AppCompatActivity {
                     getRestoftheBuildings(posts);
                     Log.d(TAG, "getBuildings: "+posts.size());
                 }
-
             } else {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
@@ -355,7 +336,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(houseAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
     }
-
     private void isPreviousSearchTerm(String searchTerm, OnSearchTermCheckListener listener) {
         // Check if the search term exists in the searchStats collection
         Query query = db.collection("searchStats").whereEqualTo("searchTerm", searchTerm);
@@ -367,13 +347,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     public interface OnSearchTermCheckListener {
         void onComplete(boolean exists);
     }
-
-
-
     private void incrementSearchTermCount(String searchTerm) {
         // Get the document reference for the existing search term
         db.collection("searchStats")
@@ -384,7 +360,6 @@ public class MainActivity extends AppCompatActivity {
                         DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                         String documentId = documentSnapshot.getId();
                         long count = documentSnapshot.getLong("count");
-
                         // Increment the count of the existing search term by 1
                         db.collection("searchStats")
                                 .document(documentId)
@@ -395,7 +370,6 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "Error retrieving search term document", e));
     }
-
     private void addNewSearchTerm(String searchTerm) {
         // Assume you have user ID here, get it from current logged-in user
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
