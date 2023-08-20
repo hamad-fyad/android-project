@@ -152,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
                     searchBuildings(typoFixer.fixTypos(newText));
                 }else if (newText.isEmpty()||newText.length()==0) {
                     getTopSearchedBuildings();
+                }else {
+                    getBuildings();
                 }
                 return false;
             }
@@ -159,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
         posts.clear();
         showBuildings(posts);
         getTopSearchedBuildings();
+        getBuildings();
     }
     private void getCloseBuildings() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -304,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
                 posts=houses;
                 showBuildings(posts);
                 if(posts.size()>=0){
-                    //getRestoftheBuildings(posts);
+                    getRestoftheBuildings(posts);
                     Log.d(TAG, "getBuildings: "+posts.size());
                 }
             } else {
@@ -338,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void isPreviousSearchTerm(String searchTerm, OnSearchTermCheckListener listener) {
         // Check if the search term exists in the searchStats collection
-        Query query = db.collection("searchStats").whereEqualTo("searchTerm", searchTerm).whereEqualTo("Uid",FirebaseAuth.getInstance().getCurrentUser().getUid());
+        Query query = db.collection("searchStats").whereEqualTo("searchTerm", searchTerm).whereEqualTo("userId",FirebaseAuth.getInstance().getCurrentUser().getUid());
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && !task.getResult().isEmpty()) {
                 listener.onComplete(true);
@@ -353,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
     private void incrementSearchTermCount(String searchTerm) {
         // Get the document reference for the existing search term
         db.collection("searchStats")
-                .whereEqualTo("searchTerm", searchTerm)
+                .whereEqualTo("searchTerm", searchTerm).whereEqualTo("userId",FirebaseAuth.getInstance().getUid())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {

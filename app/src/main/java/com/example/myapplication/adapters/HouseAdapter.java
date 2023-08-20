@@ -66,24 +66,18 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                     holder.deleteButton.setVisibility(View.GONE);
                 }
                 if (!user.getUid().equals(building.getUseruid())) {
+                    holder.chatButton.setVisibility(View.VISIBLE);
+                } else {
+                    holder.chatButton.setVisibility(View.GONE);
+                }
+                if (!user.getUid().equals(building.getUseruid())) {
                     holder.callButton.setVisibility(View.VISIBLE);
                 } else {
                     holder.callButton.setVisibility(View.GONE);
                 }
                 holder.textViewDetails.setText(buildingDetails);
                 // Set up click listener for itemView
-                holder.itemView.setOnClickListener(v -> {
-                    if (user.getUid().equals(building.getUseruid())) {
-                        Utility.showToast(holder.itemView.getContext(), "its your own post cant open a chat ");
-                    } else {
-                        // Open ChatRoomActivity when clicked
-                        Intent intent = new Intent(holder.itemView.getContext(), ChatRoomActivity.class);
-                        intent.putExtra("ownerId", building.getUseruid());
-                        intent.putExtra("name", documentSnapshot.getString("name"));
-                        intent.putExtra("currentUserId", FirebaseAuth.getInstance().getUid());
-                        holder.itemView.getContext().startActivity(intent);
-                    }
-                });
+
                 holder.deleteButton.setOnClickListener(v -> {
                     if (user.getUid().equals(building.getUseruid())) {
                         houses.remove(position);
@@ -99,7 +93,18 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
                         Utility.showToast(holder.itemView.getContext(), "You can only delete your own posts");
                     }
                 });
+                holder.chatButton.setOnClickListener(v -> {
+                    if (user.getUid().equals(building.getUseruid())) {
+                    } else {
+                        // Open ChatRoomActivity when clicked
+                        Intent intent = new Intent(holder.itemView.getContext(), ChatRoomActivity.class);
+                        intent.putExtra("ownerId", building.getUseruid());
+                        intent.putExtra("name", documentSnapshot.getString("name"));
+                        intent.putExtra("currentUserId", FirebaseAuth.getInstance().getUid());
+                        holder.itemView.getContext().startActivity(intent);
+                    }
 
+                });
                 holder.callButton.setOnClickListener(v -> {
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse("tel:" + number));
@@ -133,7 +138,7 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
         RecyclerView imageRecyclerView;
         TextView textViewDetails;
         Button deleteButton;
-        Button callButton;
+        Button callButton,chatButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -142,7 +147,8 @@ public class HouseAdapter extends RecyclerView.Adapter<HouseAdapter.ViewHolder> 
             deleteButton = itemView.findViewById(R.id.deleteButton);
             deleteButton.setVisibility(View.GONE);
             callButton = itemView.findViewById(R.id.callButton);
-
+            chatButton = itemView.findViewById(R.id.chatButton);
+            chatButton.setVisibility(View.GONE);
             LinearLayoutManager layoutManager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
             SnapHelper snapHelper = new PagerSnapHelper();
             imageRecyclerView.setLayoutManager(layoutManager);
