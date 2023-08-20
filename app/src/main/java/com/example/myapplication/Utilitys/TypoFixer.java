@@ -19,7 +19,6 @@ public class TypoFixer {
     public String fixTypos(String text) {
         String[] words = text.split(" ");
         List<String> correctedWords = new ArrayList<>();
-
         for (String word : words) {
             if (word.matches("-?\\d+(\\.\\d+)?")) {
                 correctedWords.add(word);

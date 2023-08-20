@@ -52,9 +52,7 @@ public class StatisticsView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statisticsview);
-
         chart = findViewById(R.id.chart);
-
         getAvgTime();
     }
     private void getAvgTime() {
@@ -71,7 +69,6 @@ public class StatisticsView extends AppCompatActivity {
           }
       });
     }
-
     private void displaySearchStats() {
         // Calculate average sell time
         // Set chart properties

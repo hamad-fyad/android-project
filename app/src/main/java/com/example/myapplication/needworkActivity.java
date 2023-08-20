@@ -216,7 +216,7 @@ public class needworkActivity extends AppCompatActivity {
                 }
                 Intent resultIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
                 resultIntent.putExtra("ownerId", user.getUid());
-                resultIntent.putExtra("currentUserId", currentUser);
+                resultIntent.putExtra("currentUserId", currentUser.getUid());
                 PendingIntent resultPendingIntent = PendingIntent.getActivity(
                         getApplicationContext(),
                         0,

@@ -6,8 +6,7 @@ public class Message {
     private String sentBy;
     private String message;
     private Timestamp timestamp;
-    public Message() {
-    }
+    public Message() {}
     public Message(String sentBy, String message, Timestamp timestamp) {
         this.sentBy = sentBy;
         this.message = message;

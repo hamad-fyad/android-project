@@ -209,7 +209,7 @@ private ShapeableImageView createShapeableImageView(Uri imageUri) {// function f
             });
 
         } else {
-            Utility.showToast(this, "Please select a radio button option");
+            Utility.showToast(this, "Please fill in all fields");
         }
 
     }

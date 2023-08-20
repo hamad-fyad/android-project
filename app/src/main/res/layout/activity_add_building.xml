@@ -67,7 +67,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="size"
+            android:hint="size M"
             android:inputType="number"
             android:id="@+id/size"
             android:textSize="20sp"
@@ -78,7 +78,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="price"
+            android:hint="price $"
             android:id="@+id/price"
             android:inputType="number"
             android:textSize="20sp"
@@ -86,8 +86,6 @@
             android:padding="16dp"
             android:layout_marginTop="5dp"
             />
-
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

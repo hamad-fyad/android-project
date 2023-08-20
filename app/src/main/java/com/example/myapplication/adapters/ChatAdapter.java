@@ -60,7 +60,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MyViewHolder> 
             },chatId);
 
             holder.itemView.setOnClickListener(view -> {
-                // Handle the click event, e.g., open the chat
+                // Handle the click event, open the chat
                 Intent intent = new Intent(holder.itemView.getContext(), ChatRoomActivity.class);
                 intent.putExtra("ownerId", chatId);
                 intent.putExtra("currentUserId", FirebaseAuth.getInstance().getUid());

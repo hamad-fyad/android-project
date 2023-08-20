@@ -31,7 +31,6 @@ public class serviceActivity2 extends AppCompatActivity {
        needwork=findViewById(R.id.needwork);
        needservice=findViewById(R.id.needservice);
 
-
         needwork.setOnClickListener(v->need_work());
        needservice.setOnClickListener(v->need_service());
          bottomNavigationView = findViewById(R.id.bottomNavigationView);

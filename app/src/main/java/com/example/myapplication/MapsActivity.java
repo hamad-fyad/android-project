@@ -148,9 +148,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .strokeWidth(2)
                             .strokeColor(Color.BLUE)
                             .fillColor(Color.parseColor("#80ADD8E6")); // Transparent blue color for the fill
-
                     circle = mMap.addCircle(circleOptions);
-
                     mMap.setOnMarkerClickListener(marker -> {
                         User clickedUser = (User) marker.getTag();
                         if (clickedUser != null) {
@@ -173,7 +171,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void checkLocationPermission() {
-
         if (!PermissionUtils.hasFineLocationPermission(this)) {
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 new AlertDialog.Builder(this)
@@ -217,7 +214,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -228,7 +224,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updates.put("longitude", -1);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("users").document(user.getUid());
-
         docRef
                 .update(updates)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
@@ -244,7 +239,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updates.put("longitude", -1);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("users").document(user.getUid());
-
         docRef
                 .update(updates)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))

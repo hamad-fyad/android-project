@@ -51,7 +51,7 @@
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:queryHint="address, price, size"
+            app:queryHint="address, price, size, type "
             app:iconifiedByDefault="false"
             android:layout_marginBottom="12dp"
             tools:ignore="MissingConstraints" />

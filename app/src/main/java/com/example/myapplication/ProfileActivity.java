@@ -131,9 +131,6 @@ private Button chat,logout,personalSpace;
         });
 
     }
-
-
-
     private void Chat() {
         Intent intent=new Intent(ProfileActivity.this, ChatsActivity.class);
         intent.putExtra("currentUserId",firebaseUser.getUid());

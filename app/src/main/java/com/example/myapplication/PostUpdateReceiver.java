@@ -64,10 +64,8 @@ public class PostUpdateReceiver extends BroadcastReceiver {
             Timestamp listedTimestamp = buildingSnapshot.getTimestamp("listedTimestamp");
             Timestamp soldTimestamp = Timestamp.now();
             long sellTime = soldTimestamp.getSeconds() - listedTimestamp.getSeconds();
-
             sellTimeSum += sellTime;
             soldCount++;
-
             userRef.update(
                     "sellTimeSum", sellTimeSum,
                     "soldCount", soldCount

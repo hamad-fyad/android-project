@@ -218,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "getTopSearchedBuildings: "+posts.size());
         if (currentUser != null) {
             // Retrieve the top 1 most searched terms
-            //i dont know why but here i had to use ascending for the top search
             Query query = searchStatsRef
                     .whereEqualTo("userId", currentUser.getUid())
                     .orderBy("count", Query.Direction.DESCENDING)
@@ -285,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
     private void getBuildings(int maxPrice, int maxSize, String address,String type) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference housesRef = db.collection("Buildings");
-        Query query = housesRef.whereLessThanOrEqualTo("price", maxPrice);
+        Query query = housesRef.whereLessThanOrEqualTo("price", maxPrice) ;
         if (!address.isEmpty()) {
             query = query.whereEqualTo("address", address.toLowerCase());
         }
@@ -303,8 +302,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 posts=houses;
+                showBuildings(posts);
                 if(posts.size()>=0){
-                    getRestoftheBuildings(posts);
+                    //getRestoftheBuildings(posts);
                     Log.d(TAG, "getBuildings: "+posts.size());
                 }
             } else {
@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void isPreviousSearchTerm(String searchTerm, OnSearchTermCheckListener listener) {
         // Check if the search term exists in the searchStats collection
-        Query query = db.collection("searchStats").whereEqualTo("searchTerm", searchTerm);
+        Query query = db.collection("searchStats").whereEqualTo("searchTerm", searchTerm).whereEqualTo("Uid",FirebaseAuth.getInstance().getCurrentUser().getUid());
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && !task.getResult().isEmpty()) {
                 listener.onComplete(true);
